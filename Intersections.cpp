@@ -1,19 +1,6 @@
 //BASIC LOGIC FOR GREENSQ
 
 
-void setup() 
-{
-  Wire.begin();
-  Serial.begin(9600);
-  //setup for EV3 color
-
-}
-
-void loop() 
-{
-  greensq();
-}
-
 void get_color()
 {
   int temp_color; //temporary color readings
