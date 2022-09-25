@@ -1,5 +1,5 @@
 #pragma once
-//libraries here:
+//libraries, global vars, and essential functions in here:
 
 //
 
