@@ -3,5 +3,6 @@
 
 //
 //all func declarations.
-
+void get_color();
+void greensq();
 
