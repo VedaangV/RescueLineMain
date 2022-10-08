@@ -1,7 +1,7 @@
 //BASIC LOGIC FOR GREENSQ
 
 
-void get_color()
+int get_color()
 {
   int temp_color; //temporary color readings
   int green_check; //check against certain ratio (ex: green/red)
