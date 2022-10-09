@@ -1,42 +1,100 @@
-void setupBNO() 
-{//set up for BNO-055
-  if (!bno.begin(0x08)) // turn off the magnetometer
+//clunky first draft (working)
+
+#include "Megapi_Functions.h"
+#include <Adafruit_TCS34725.h>
+#include <Wire.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+static float yaw = 0.0;
+
+const int m1_forward = -75;
+const int m2_forward = 75;
+//****************************************************************************************************************\\
+
+
+void setup()
+{
+  Wire.begin();
+  Serial.begin(9600);
+  if (!bno.begin(8))
   {
-    Serial.println("No BNO055 found");
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1);
   }
-  //bno.setExtCrystalUse(true);
+
+}
+//****************************************************************************************************************\\
+
+float getYaw()
+{
+  sensors_event_t orientationData;
+  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  return orientationData.orientation.x;
 }
 
-void getBNO() 
+void enc_turn(int deg, int speed)
 {
-  //tca select channel
-  rot = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
+
+  //right turn
+  if (deg > 0)
+  {
+    target = yaw + deg;
+    if (target > 360)
+    {
+      target = target - 360;
+    }
+
+    while (yaw > target + 1 || yaw < target - 1)
+    {
+      rightMotorRun(-speed);
+      leftMotorRun(speed);
+      yaw = getYaw();
+      Serial.print("Yaw: ");
+      Serial.println(yaw);
+    }
+    motorsStop();
+  }
+
+  //left turn
+  if (deg < 0)
+  {
+    if (yaw < abs(deg))
+    {
+      target = yaw + (360 - abs(deg));
+    }
+
+    else
+    {
+      target = yaw - abs(deg);
+    }
+    while (yaw > target + 2 || yaw < target - 2)
+    {
+      rightMotorRun(speed);
+      leftMotorRun(-speed);
+      yaw = getYaw();
+    }
+
+    while (yaw > target)
+    {
+      lturn(speed);
+      yaw = getYaw();
+    }
+    motorsStop();
+  }
+
 }
 
 
-int get_rot() 
+
+void loop()
 {
-  getBNO();
-  return rot.x();
-}
-
-void enc_turn(int deg) 
-{
-  const int exSpeed = 90;
-  getBNO();
-
-  // calculate difference from the intended rotation
-  int difference = rot.x() - deg;
-  if (difference < -180) difference += 360;
-  if (difference > 180) difference -= 360;
-  if (abs(difference) <= 1) return;
-
-  // figure out the speed
-  int speed = map(difference, -180, 180, exSpeed, -exSpeed) + (difference > 0 ? -minSpeed : minSpeed);
-  //int speed = (difference > 0 ? -exSpeed : exSpeed);
-  //Serial.println(difference);
-
-  go_motor(speed);
-  enc_turn(deg);
+  enc_turn(-90, 100);
+  delay(500);
 }
