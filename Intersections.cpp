@@ -1,5 +1,5 @@
 //BASIC LOGIC FOR GREENSQ
-
+#include "Header.h"
 
 int get_color()
 {
@@ -8,12 +8,12 @@ int get_color()
 
   if(temp_color > green_check)
   {
-    return(1);
+    return 1;
   }
 
   else
   {
-    return(0);
+    return 0;
   }
   
 }
