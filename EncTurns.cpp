@@ -1,3 +1,7 @@
+#include "Header.h"
+
+#define BNO055_SAMPLERATE_DELAY_MS (10)
+Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
 void setupBNO() 
 {//set up for BNO-055
   if (!bno.begin(0x08)) // turn off the magnetometer
@@ -23,6 +27,7 @@ int get_rot()
 
 void enc_turn(int deg) 
 {
+  const int minSpeed = 45;
   const int exSpeed = 90;
   getBNO();
 
@@ -37,6 +42,6 @@ void enc_turn(int deg)
   //int speed = (difference > 0 ? -exSpeed : exSpeed);
   //Serial.println(difference);
 
-  go_motor(speed);
+  go_motors(speed);
   enc_turn(deg);
 }
