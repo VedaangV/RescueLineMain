@@ -3,52 +3,35 @@ void enc_turn(int deg, int speed)
   int target = 0;
   motorsStop();
   yaw = getYaw();
+  target = yaw + deg;
 
-  //right turn
-  if (deg > 0)
+  if (target < 0)
   {
-    target = yaw + deg;
-    if (target > 360)
-    {
-      target = target - 360;
-    }
+    target+= 360;
+  }
 
-    while (yaw > target + 1 || yaw < target - 1)
+  else if (target > 360)
+  {
+    target -= 360;
+  }
+  Serial.print("Degree: ");
+  Serial.println(deg);
+  
+  Serial.print("target: ");
+  Serial.println(target);
+  int calc_speed = ((deg * -1) * speed) / abs(deg);
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
+  Serial.println(calc_speed);
+  Serial.print("LEFT MOTOR: ");
+  Serial.println(-calc_speed);
+
+  while (yaw > target + 2 || yaw < target - 2)
     {
-      rightMotorRun(-speed);
-      leftMotorRun(speed);
-      yaw = getYaw();
-      Serial.print("Yaw: ");
       Serial.println(yaw);
-    }
-    motorsStop();
-  }
-
-  //left turn
-  if (deg < 0)
-  {
-    if (yaw < abs(deg))
-    {
-      target = yaw + (360 - abs(deg));
-    }
-
-    else
-    {
-      target = yaw - abs(deg);
-    }
-    while (yaw > target + 2 || yaw < target - 2)
-    {
-      rightMotorRun(speed);
-      leftMotorRun(-speed);
+      rightMotorRun(calc_speed);
+      leftMotorRun(-calc_speed);
       yaw = getYaw();
     }
-
-    while (yaw > target)
-    {
-      lturn(speed);
-      yaw = getYaw();
-    }
-    motorsStop();
-  }
-
+    
+  motorsStop();
 }
