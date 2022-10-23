@@ -1,47 +1,54 @@
-#include "Header.h"
+void enc_turn(int deg, int speed)
+{
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
 
-#define BNO055_SAMPLERATE_DELAY_MS (10)
-Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
-void setupBNO() 
-{//set up for BNO-055
-  if (!bno.begin(0x08)) // turn off the magnetometer
+  //right turn
+  if (deg > 0)
   {
-    Serial.println("No BNO055 found");
-    while (1);
+    target = yaw + deg;
+    if (target > 360)
+    {
+      target = target - 360;
+    }
+
+    while (yaw > target + 1 || yaw < target - 1)
+    {
+      rightMotorRun(-speed);
+      leftMotorRun(speed);
+      yaw = getYaw();
+      Serial.print("Yaw: ");
+      Serial.println(yaw);
+    }
+    motorsStop();
   }
-  //bno.setExtCrystalUse(true);
-}
 
-void getBNO() 
-{
-  //tca select channel
-  rot = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-}
+  //left turn
+  if (deg < 0)
+  {
+    if (yaw < abs(deg))
+    {
+      target = yaw + (360 - abs(deg));
+    }
 
+    else
+    {
+      target = yaw - abs(deg);
+    }
+    while (yaw > target + 2 || yaw < target - 2)
+    {
+      rightMotorRun(speed);
+      leftMotorRun(-speed);
+      yaw = getYaw();
+    }
 
-int get_rot() 
-{
-  getBNO();
-  return rot.x();
-}
+    while (yaw > target)
+    {
+      lturn(speed);
+      yaw = getYaw();
+    }
+    motorsStop();
+  }
 
-void enc_turn(int deg) 
-{
-  const int minSpeed = 45;
-  const int exSpeed = 90;
-  getBNO();
-
-  // calculate difference from the intended rotation
-  int difference = rot.x() - deg;
-  if (difference < -180) difference += 360;
-  if (difference > 180) difference -= 360;
-  if (abs(difference) <= 1) return;
-
-  // figure out the speed
-  int speed = map(difference, -180, 180, exSpeed, -exSpeed) + (difference > 0 ? -minSpeed : minSpeed);
-  //int speed = (difference > 0 ? -exSpeed : exSpeed);
-  //Serial.println(difference);
-
-  go_motors(speed);
-  enc_turn(deg);
 }
