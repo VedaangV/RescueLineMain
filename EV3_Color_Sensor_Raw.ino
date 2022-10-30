@@ -14,31 +14,25 @@ unsigned int bright = 0;
 
 int getbyte()
 {
-  while(Serial1.available() <= 0)
+  while(Serial3.available() <= 0)
   {
     delay(1);
   }
-  return Serial1.read();
+  return Serial3.read();
 }
-
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(115200);
-  Serial1.begin(2400);
-
-  
+void colorSetup()
+{
   uint8_t payloadLength = 0;
-  Serial.println("Starting");
-  //delay(2000);
 
-  pinMode(13, OUTPUT);
-  digitalWrite(12,LOW);
+  digitalWrite(A6,LOW);
   delay(500);
-  digitalWrite(12,HIGH);
+  digitalWrite(A6,HIGH);
+
+
   
   while(startup == 0)
   {
-    if(Serial1.available() > 0)
+    if(Serial3.available() > 0)
     {
       Serial.print("Byte read: ");
       incomingByte = getbyte();
@@ -127,15 +121,15 @@ void setup() {
     {
       Serial.println("ACK");
       startup = 1;
-      Serial1.write(0b00000100);
+      Serial3.write(0b00000100);
     }
     Serial.println(checksumByte,BIN);
     }
   }
-  Serial1.end();
-  Serial1.begin(57600);
+  Serial3.end();
+  Serial3.begin(57600);
   Serial.println("Setup_Complete- changing to rgb raw"); //mode 4
-  while(Serial1.available() < 2)
+  while(Serial3.available() < 2)
   {
     delay(10);
   }
@@ -143,22 +137,19 @@ void setup() {
   getbyte();
   getbyte();
   delay(1);
-  Serial1.write(0b01000011);
-  Serial1.write(0b00000100);//change mode 4
-  Serial1.write(0b10111000);//10111000
-  while(Serial1.available())
+  Serial3.write(0b01000011);
+  Serial3.write(0b00000100);//change mode 4
+  Serial3.write(0b10111000);//10111000
+  while(Serial3.available())
   {
-    Serial1.read();
+    Serial3.read();
   }
   delay(1);
-  
-  
-  
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  if(Serial1.available() > 3)
+void getRGB()
+{
+  if(Serial3.available() > 3)
   {
       //Serial.println(getbyte());
       messageByte = getbyte();
@@ -176,7 +167,28 @@ void loop() {
       Serial.print(green);
       Serial.print("  ");
       Serial.println(blue);
-      Serial1.write(0b00000010);
+      Serial3.write(0b00000010);
       //delay(10);
   }
+}
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  Serial3.begin(2400);
+  
+  
+  Serial.println("Starting");
+  delay(2000);
+  colorSetup();
+  getRGB();
+  if(red > 400)
+  {
+    colorSetup();
+    getRGB();
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  getRGB();
 }
