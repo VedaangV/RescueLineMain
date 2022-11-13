@@ -1,10 +1,12 @@
 
 void get_ok()
 {
+  //Serial.println("in get ok");
   while(Serial2.available())
   {
     if(Serial2.read() == 'K')
     {
+      //Serial.println("found ok");
       break;
     }
   }
@@ -14,15 +16,21 @@ void setup()
 {
   Serial.begin(115200);
   Serial2.begin(115200);
-  Serial2.println("ATINTTIME=1");
+  /*Serial2.println("ATINTTIME=1");
   get_ok();
   Serial2.println("ATBURST=1");
-  get_ok();
+  get_ok();*/
 }
 
 void loop() 
 {
   //while(!Serial2.available());
+  Serial2.println("ATDATA");
+  get_ok();
+  
+  //Serial.println(Serial2.available());
+  //Serial.println(Serial2.read());
+  
   Serial.print("v:");
   Serial.print(Serial2.parseInt());
   
@@ -40,6 +48,8 @@ void loop()
 
   Serial.print(",r:");
   Serial.println(Serial2.parseInt());
+
+  
 
   
 }
