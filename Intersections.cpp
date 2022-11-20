@@ -1,6 +1,45 @@
-//Greensq without turns
+//final, all inclusive green sq
+//version 1
+
+
+#include "Megapi_Functions.h"
+#include <Adafruit_TCS34725.h>
+#include <Wire.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+static float yaw = 0.0;
+
+const int m1_forward = -75;
+const int m2_forward = 75;
+
 int s1[6];
 int s2[6];
+//****************************************************************************************************************\\
+
+
+void setup() 
+{
+  Wire.begin();
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial3.begin(115200);
+  /*Serial2.println("ATINTTIME=1");
+  get_ok();
+  Serial2.println("ATBURST=1");
+  get_ok();*/
+  if (!bno.begin(8))
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while (1);
+  }
+}
+//****************************************************************************************************************\\
+
+
 void get_ok()
 {
   //Serial.println("in get ok");
@@ -23,16 +62,13 @@ void get_ok()
   }
 }
 
-void setup() 
+float getYaw()
 {
-  Serial.begin(115200);
-  Serial2.begin(115200);
-  Serial3.begin(115200);
-  /*Serial2.println("ATINTTIME=1");
-  get_ok();
-  Serial2.println("ATBURST=1");
-  get_ok();*/
+  sensors_event_t orientationData;
+  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  return orientationData.orientation.x;
 }
+
 
 int get_color()
 {
@@ -114,6 +150,45 @@ int get_color()
   
 }
 
+void enc_turn(int deg, int speed)
+{
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
+  target = yaw + deg;
+
+  if (target < 0)
+  {
+    target+= 360;
+  }
+
+  else if (target > 360)
+  {
+    target -= 360;
+  }
+  Serial.print("Degree: ");
+  Serial.println(deg);
+  
+  Serial.print("target: ");
+  Serial.println(target);
+  int calc_speed = ((deg * -1) * speed) / abs(deg);
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
+  Serial.println(calc_speed);
+  Serial.print("LEFT MOTOR: ");
+  Serial.println(-calc_speed);
+
+  while (yaw > target + 2 || yaw < target - 2)
+    {
+      Serial.println(yaw);
+      rightMotorRun(calc_speed);
+      leftMotorRun(-calc_speed);
+      yaw = getYaw();
+    }
+    
+  motorsStop();
+}
+
+
 void greensq()
 {
     //perhaps insert code to prevent over-turning???
@@ -122,15 +197,15 @@ void greensq()
     {
       case 3:
         Serial.println("3");
-        //enc_turn(180);
+        enc_turn(180, 100);
         break;
       case 2:
         Serial.println("2");
-        //enc_turn(90);
+        enc_turn(90, 100);
         break;
       case 1:
         Serial.println("1");
-        //enc_turn(90);
+        enc_turn(90, 100);
         break;
       default:
         Serial.println("default/0");
@@ -146,4 +221,3 @@ void loop()
    //Serial.println(green_val);
    greensq();
 }
-
