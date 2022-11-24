@@ -1,4 +1,5 @@
-//code for detecting green using two as7262 color sensors
+//get_color function
+//uses 2 as7262 color sensors communicating over serial
 
 int s1[6];
 int s2[6];
@@ -99,12 +100,14 @@ int get_color()
 
   float green_check = 10; //check against certain ratio (ex: green/red)
 
+  //check if right sensor is green
   if(s1[2]/s1[5] >= green_check)
   {
-    Serial.println("right green");
+    //Serial.println("right green");
     rcolor = 1;
   }
 
+  //check if left sensor is green
   if(s2[2]/s2[5] >= green_check)
   {
     //Serial.println("left green");
@@ -121,5 +124,3 @@ void loop()
    int green_val = get_color();
    //Serial.println(green_val);
 }
-
-
