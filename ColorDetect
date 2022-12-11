@@ -99,7 +99,7 @@ int get_color()
   //Serial.println(s1[5]);
 
   float green_check = 10; //check against certain ratio (ex: green/red)
-
+  
   //check if right sensor is green
   if(s1[2]/s1[5] >= green_check)
   {
@@ -113,7 +113,13 @@ int get_color()
     //Serial.println("left green");
     lcolor = 1;
   }
-
+  
+  if(((s2[0]/s2[1]) >= 3) && ((s2[1]/s2[5]) <= 5) && ((s1[0]/s1[1]) >= 3) && ((s1[1]/s1[5]) <= 5))
+  {
+    Serial.print("silver!!");
+    return(246);
+  }
+ 
   return((rcolor << 1) + lcolor);
   
 }
@@ -122,5 +128,5 @@ int get_color()
 void loop() 
 {
    int green_val = get_color();
-   //Serial.println(green_val);
+   Serial.println(green_val);
 }
