@@ -2,6 +2,10 @@
 #define HEADER_H
 #pragma once
 //libraries, global vars, and essential functions in here:
+#include "Megapi_Functions.h"
+#include <Adafruit_TCS34725.h>
+#include <Wire.h>
+#include <utility/imumaths.h>
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 extern Adafruit_BNO055 bno;//def in EncTurns.cpp
@@ -9,9 +13,20 @@ extern imu::Vector<3> rot;//def in EncTurns.cpp
 extern QTRSensors qtr;//def in LineTracing.cpp
 extern volatile int enc;//def in functions.cpp
 
-//global variables
+//BNO variables for IMU turns
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+static float yaw = 0.0;
+
+//motor control variables
+const int m1_forward = -75;
+const int m2_forward = 75;
+
+//greensq arrays
 int s1[6];
 int s2[6];
+
+//obstacle variables
 volatile long pulseMsSt = 0;
 volatile long pulseMsEd = 0;
 volatile bool pulseFirst = 1;
