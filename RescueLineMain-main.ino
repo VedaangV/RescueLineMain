@@ -11,6 +11,8 @@ void setup() {
 }
 void loop() {
   //main loop in here
-  
+  check_obstacle();
+  lineTrace();
+  greensq();
   
 }
