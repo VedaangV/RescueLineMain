@@ -9,6 +9,11 @@ extern imu::Vector<3> rot;//def in EncTurns.cpp
 extern QTRSensors qtr;//def in LineTracing.cpp
 extern volatile int enc;//def in functions.cpp
 
+//global variables
+int s1[6];
+int s2[6];
+
+
 //all func declarations.
 
 int get_color();1
