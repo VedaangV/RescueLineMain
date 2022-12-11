@@ -1,5 +1,33 @@
 //code for obstacle avoidance.
 #include "Header.h"
+
+void distanceISR()
+{
+ if(pulseFirst)
+ {
+  pulseMsSt= micros(); 
+  pulseFirst = 0;
+ }
+ else
+ {
+  pulseMsEd = micros();
+  pulseFirst = 1;
+ }
+}
+
+float getFrontDistance()
+{
+  long pulseTime = pulseMsEd - pulseMsSt;
+  float distance;
+  distance = pulseTime * 0.034 / 2;
+  if(distance < 0)
+  {
+    distance = 0;
+  }
+  return(distance);
+}
+
+
 bool seeWall(){
   return false;//update to actual condition once sensor is finalized
 }
