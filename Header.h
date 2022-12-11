@@ -12,6 +12,9 @@ extern volatile int enc;//def in functions.cpp
 //global variables
 int s1[6];
 int s2[6];
+volatile long pulseMsSt = 0;
+volatile long pulseMsEd = 0;
+volatile bool pulseFirst = 1;
 
 
 //all func declarations.
