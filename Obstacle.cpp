@@ -27,25 +27,72 @@ float getFrontDistance()
   return(distance);
 }
 
-
-bool seeWall(){
-  return false;//update to actual condition once sensor is finalized
+void check_obstacle()
+{
+   float dist = getFrontDistance();
+   if 
 }
-void avoid(float obstacleDist){//avoids obstacle once detected. obstacleDist is length of object for testing.
-  enc_turn(90);
-  if(seeWall()){
-    enc_turn(180);//turn to other side
-    enc = 0;
-    while(enc < cm_to_encoders((obstacleDist + 10)*PI)){//the number should be two times the distance stopped before the obstacle
-      setMultipleMotors(75, 25);//circle turn around object
+if (dist < obstacleDistance && frontDist != 0)
+  {
+    motorsStop();
+    delay(500);
+    //centerOnLine(); not necissairly needed- more tests required
+    motorsStop();
+    backward_cm(5);
+    //tone(45, 1000,500);
+    delay(500);
+    point90right(90,0);
+    delay(200);
+    
+    forward_cm(14);
+    delay(200);
+
+    point90left(90,0);
+    delay(200);
+
+    forward_cm(45);
+    delay(200);
+
+    point90left(90,0);
+    delay(200);
+    
+    forward_cm(14);
+    delay(200);
+
+    point90right(90,0);
+    //delay(2000);
+    //float outerSpeed;
+    //outerSpeed = (1+(trackwidth/radius))* m2_speed;
+    //delay(2000);
+    /*
+    qtr.read(sensorValues);
+    //prop_turn(outerSpeed, m2_speed);
+    
+    delay(500);
+    qtr.read(sensorValues);
+    while((sensorValues[0] < th && sensorValues[1] < th && sensorValues[2] < th && sensorValues[3] < th && sensorValues[4] < th && sensorValues[5] < th && sensorValues[6] < th && sensorValues[7] < th))
+    {
+      qtr.read(sensorValues);
+    }*/
+    
+    motorsStop();
+    /*
+    Serial2.println("black");
+    delay(1000);
+    rturn(128);
+    delay(250);
+    motorsStop();
+    delay(1000);*/
+    for(int i =0; i<4; i++)
+    {
+      if(pulseFirst == 1)
+      {
+        digitalWrite(A10,HIGH);
+        delayMicroseconds(12);
+        digitalWrite(A10,LOW);
+      }
+      delay(500);
     }
-    setMultipleMotors(0, 0);
-  }
-  else{
-    enc = 0;
-    while(enc < cm_to_encoders((obstacleDist + 10)*PI)){//the number should be two times the distance stopped before the obstacle
-      setMultipleMotors(25, 75);//circle turn
-    }
-    setMultipleMotors(0, 0);
+    
   }
 }
