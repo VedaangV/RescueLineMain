@@ -1,98 +1,94 @@
 //code for obstacle avoidance.
 #include "Header.h"
+long duration, inches, cm;
+volatile long pulseMsSt = 0;
+volatile long pulseMsEd = 0;
+volatile bool pulseFirst = 1;
+const int pingPin = 39;
 
-void distanceISR()
-{
- if(pulseFirst)
- {
-  pulseMsSt= micros(); 
-  pulseFirst = 0;
- }
- else
- {
-  pulseMsEd = micros();
-  pulseFirst = 1;
- }
+long microToInch(long microseconds) {
+  return microseconds / 29 / 2;
 }
 
-float getFrontDistance()
+long microToCm(long microseconds) {
+  return microseconds / 73.746 / 2;
+}
+
+long getCm() { //get Cm from ping sensor
+  pinMode(pingPin, OUTPUT);//set as output
+  digitalWrite(pingPin, LOW);//start with low pulse for clean high
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPin, LOW);
+  pinMode(pingPin, INPUT);//set as input
+  duration = pulseIn(pingPin, HIGH);//read input in microseconds
+  return microToCm(duration);//convert micro s to cm
+}
+long getInch() { //get inches from ping sensor
+  pinMode(pingPin, OUTPUT);//set as output
+  digitalWrite(pingPin, LOW);//start with low pulse for clean high
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPin, LOW);
+  pinMode(pingPin, INPUT);//set as input
+  duration = pulseIn(pingPin, HIGH);//read input in microseconds
+  return microToInch(duration);//convert micro s to inch
+}
+void distanceISR()
+{
+  if (pulseFirst)
+  {
+    pulseMsSt = micros();
+    pulseFirst = 0;
+  }
+  else
+  {
+    pulseMsEd = micros();
+    pulseFirst = 1;
+  }
+}
+
+float getFrontDistance()//get distance of Front US
 {
   long pulseTime = pulseMsEd - pulseMsSt;
   float distance;
   distance = pulseTime * 0.034 / 2;
-  if(distance < 0)
+  if (distance < 0)
   {
     distance = 0;
   }
-  return(distance);
+  return (distance);
 }
 
-void check_obstacle()
-{
-   float dist = getFrontDistance();
-   if 
-}
-if (dist < obstacleDistance && frontDist != 0)
-  {
-    motorsStop();
-    delay(500);
-    //centerOnLine(); not necissairly needed- more tests required
-    motorsStop();
-    backward_cm(5);
-    //tone(45, 1000,500);
-    delay(500);
-    point90right(90,0);
-    delay(200);
-    
-    forward_cm(14);
-    delay(200);
-
-    point90left(90,0);
-    delay(200);
-
-    forward_cm(45);
-    delay(200);
-
-    point90left(90,0);
-    delay(200);
-    
-    forward_cm(14);
-    delay(200);
-
-    point90right(90,0);
-    //delay(2000);
-    //float outerSpeed;
-    //outerSpeed = (1+(trackwidth/radius))* m2_speed;
-    //delay(2000);
-    /*
-    qtr.read(sensorValues);
-    //prop_turn(outerSpeed, m2_speed);
-    
-    delay(500);
-    qtr.read(sensorValues);
-    while((sensorValues[0] < th && sensorValues[1] < th && sensorValues[2] < th && sensorValues[3] < th && sensorValues[4] < th && sensorValues[5] < th && sensorValues[6] < th && sensorValues[7] < th))
-    {
-      qtr.read(sensorValues);
-    }*/
-    
-    motorsStop();
-    /*
-    Serial2.println("black");
-    delay(1000);
-    rturn(128);
-    delay(250);
-    motorsStop();
-    delay(1000);*/
-    for(int i =0; i<4; i++)
-    {
-      if(pulseFirst == 1)
-      {
-        digitalWrite(A10,HIGH);
-        delayMicroseconds(12);
-        digitalWrite(A10,LOW);
-      }
-      delay(500);
-    }
-    
+bool seeObs(long dist) { //sees obstacle?
+  if (getFrontDistance() <= dist) {
+    return true;
+  }
+  else {
+    return false;
   }
 }
+
+void avoid(int sign) { //move around obstacle
+  forwardCm(7.0, 70);
+  enc_turn(-90 * sign, 70);
+  forwardCm(17.0, 70);
+  enc_turn(-90 * sign, 70);
+  forwardCm(7.0, 70);
+  enc_turn(90 * sign, 70);
+}
+void obstacle() { //main obstacle function
+  if (seeObs(5.0)) {
+    enc_turn(90, 70);
+    if (seeObs(10.0)) { //sees wall
+      enc_turn(180, 70);
+      avoid(-1);
+    }
+    else {
+      avoid(1);
+    }
+  }
+}
+
