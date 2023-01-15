@@ -2,17 +2,41 @@
 #include "Header.h"
 void setup() {
   //setup in here
-  Serial.begin(9600);
+  setup_qtr();
   Wire.begin();
-  //ultrasonic isr
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  Serial3.begin(115200);
+  bnoSetup();
+  Wire.begin();
   attachInterrupt(digitalPinToInterrupt(18), Interruptfunc, RISING);
-   attachInterrupt(digitalPinToInterrupt(2), distanceISR,CHANGE);
+  delay(100);
 
 }
 void loop() {
   //main loop in here
-  check_obstacle();
-  lineTrace();
-  greensq();
-  
+  switch (getCase()) { //getCase() defined in FUNCTIONS.CPP
+
+    case 1:
+      //evac
+      break;
+
+    case 2:
+      motorsStop();
+      greensq();
+      break;
+
+    case 3:
+      obstacle();
+      break;
+
+    default:
+      go_motors(50);
+      break;
+
+
+  }
+
+
+
 }
