@@ -39,7 +39,7 @@ float error_calc() {
   //desired difference between sensor pairs (ideally 0, but sensors are not perfect):
   float target_vals[] = { -96, -144, -240, -876}; //As of 10/30.
 
-  float multipliers[] = {2.803167, 2.33, 1.66, 1.2};//multipliers for each sensor pair (outer to inner). Outer pairs will have higher multipliers since varying values in them would indicate more extreme cases.
+  float multipliers[] = {3.23, 2.33, 1.66, 1.0};//multipliers for each sensor pair (outer to inner). Outer pairs will have higher multipliers since varying values in them would indicate more extreme cases.
   float error = 0.0;//error in PID
   qtr.read(bw_vals);
 
@@ -148,15 +148,14 @@ int check_all() {//check all sensors to see if they have the same relative value
 void lineTrace() {//main line tracking function
 
   if (check_all() == 1 ||  check_all() == 2) { //if see all white (gap) or see all black (cross intersection)
-    enc_turn(0, 70);
     go_motors(60);//forward speed 60
     return;
   }
 
   const int base_speed = 50;//base speed for Line Tracing
-  const float kp = 0.00;//error multiplier
+  const float kp = 0.065;//error multiplier
   const float ki = 0.0;//integral multiplier
-  const float kd = 0.0; //kd multiplier
+  const float kd = 0.015; //kd multiplier
   float error = error_calc();
   integral += error;
   derivative = error - last_error;
