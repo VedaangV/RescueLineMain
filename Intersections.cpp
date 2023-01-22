@@ -1,43 +1,14 @@
-//final, all inclusive green sq
-//version 1
+//unfinished
+int rcolor = 0;
+int lcolor = 0;
 
 
-#include "Megapi_Functions.h"
-#include <Adafruit_TCS34725.h>
-#include <Wire.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
-
-uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-static float yaw = 0.0;
-
-const int m1_forward = -75;
-const int m2_forward = 75;
-
-int s1[6];
-int s2[6];
-//****************************************************************************************************************\\
-
-
-void setup() 
-{
-  Wire.begin();
-  Serial.begin(115200);
-  Serial2.begin(115200);
-  Serial3.begin(115200);
-  /*Serial2.println("ATINTTIME=1");
-  get_ok();
-  Serial2.println("ATBURST=1");
-  get_ok();*/
-  if (!bno.begin(8))
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while (1);
-  }
-}
-//****************************************************************************************************************\\
+float v = 0;
+float b = 0;
+float g = 0;
+float y = 0;
+float o = 0;
+float r = 0;
 
 
 void get_ok()
@@ -51,173 +22,151 @@ void get_ok()
       break;
     }
   }
-
-    while(Serial3.available())
-  {
-    if(Serial3.read() == 'K')
-    {
-      //Serial.println("found ok");
-      break;
-    }
-  }
 }
 
-float getYaw()
+void setup() 
 {
-  sensors_event_t orientationData;
-  bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
-  return orientationData.orientation.x;
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  /*Serial2.println("ATINTTIME=1");
+  get_ok();
+  Serial2.println("ATBURST=1");
+  get_ok();*/
 }
-
 
 int get_color()
 {
-  bool rcolor = 0;
-  bool lcolor = 0;
-  //while(!Serial2.available());
+    //while(!Serial2.available());
   Serial2.println("ATDATA");
   get_ok();
 
-  Serial3.println("ATDATA");
-  get_ok();
+  //ratio = 4.5
   
-  //Serial.println("-----------------Serial 2---------------------");
+  //Serial.println(Serial2.available());
+  //Serial.println(Serial2.read());
+  
+  /*Serial.print("v:");
+  Serial.print(Serial2.parseInt());
+  
+  Serial.print(",b:");
+  Serial.print(Serial2.parseInt());
+
+  Serial.print(",g:");
+  Serial.print(Serial2.parseInt());
+
+  Serial.print(",y:");
+  Serial.print(Serial2.parseInt());
+
+  Serial.print(",o:");
+  Serial.print(Serial2.parseInt());
+
+  Serial.print(",r:");
+  Serial.println(Serial2.parseInt());*/
+  
   //Serial.print("v:");
-  s1[0] = Serial2.parseInt();
-  //Serial.print(s1[0]);
+  v = Serial2.parseInt();
+  //Serial.print(v);
   
   //Serial.print(",b:");
-  s1[1] = Serial2.parseInt();
-  //Serial.print(s1[1]);
+  b = Serial2.parseInt();
+  //Serial.print(b);
 
   //Serial.print(",g:");
-  s1[2]= Serial2.parseInt();
-  //Serial.print(s1[2]);
+  g = Serial2.parseInt();
+  //Serial.print(g);
 
   //Serial.print(",y:");
-  s1[3] = Serial2.parseInt();
-  //Serial.print(s1[3]);
+  y = Serial2.parseInt();
+  //Serial.print(y);
 
   //Serial.print(",o:");
-  s1[4] = Serial2.parseInt();
-  //Serial.print(s1[4]);
+  o = Serial2.parseInt();
+  //Serial.print(o);
 
   //Serial.print(",r:");
-  s1[5] = Serial2.parseInt();
-  //Serial.println(s1[5]);
+  r = Serial2.parseInt();
+  //Serial.println(r);
 
-  //Serial.println("\t-----------------Serial 3---------------------");
-
-  //Serial.print("v:");
-  s2[0] = Serial3.parseInt();
-  //Serial.print(s1[0]);
+  /*Serial.print("g/v:");
+  Serial.print(g/v);
   
-  //Serial.print(",b:");
-  s2[1] = Serial3.parseInt();
-  //Serial.print(s1[1]);
-
-  //Serial.print(",g:");
-  s2[2]= Serial3.parseInt();
-  //Serial.print(s1[2]);
-
-  //Serial.print(",y:");
-  s2[3] = Serial3.parseInt();
-  //Serial.print(s1[3]);
-
-  //Serial.print(",o:");
-  s2[4] = Serial3.parseInt();
-  //Serial.print(s1[4]);
-
-  //Serial.print(",r:");
-  s2[5] = Serial3.parseInt();
-  //Serial.println(s1[5]);
-
-  float green_check = 10; //check against certain ratio (ex: green/red)
-
-  if(s1[2]/s1[5] >= green_check)
-  {
-    //Serial.println("right green");
-    rcolor = 1;
-  }
-
-  if(s2[2]/s2[5] >= green_check)
-  {
-    //Serial.println("left green");
-    lcolor = 1;
-  }
-
-  return((rcolor << 1) + lcolor);
+  Serial.print(",g/b:");
+  Serial.print(g/b);
   
-}
-
-void enc_turn(int deg, int speed)
-{
-  int target = 0;
-  motorsStop();
-  yaw = getYaw();
-  target = yaw + deg;
-
-  if (target < 0)
-  {
-    target+= 360;
-  }
-
-  else if (target > 360)
-  {
-    target -= 360;
-  }
-  Serial.print("Degree: ");
-  Serial.println(deg);
+  Serial.print(",g/y:");
+  Serial.print(g/y);
   
-  Serial.print("target: ");
-  Serial.println(target);
-  int calc_speed = ((deg * -1) * speed) / abs(deg);
-  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
-  Serial.println(calc_speed);
-  Serial.print("LEFT MOTOR: ");
-  Serial.println(-calc_speed);
+  Serial.print(",g/o:");
+  Serial.print(g/o);
+  
+  Serial.print(",g/r:");
+  Serial.println(g/r);*/
+  
+  float temp_color = g/r;
+  float green_check = 15; //check against certain ratio (ex: green/red)
 
-  while (yaw > target + 2 || yaw < target - 2)
+  //Serial.println(temp_color);
+
+  /*Serial.print("Green/Red: ");
+  Serial.print(g/r);
+  Serial.print(" \t Green/Blue: ");
+  Serial.print(g/b);*/
+
+  if(temp_color > green_check)
+  {
+    Serial.println("Green");
+    return(1);
+    /*if(g/b > edge_check)
     {
-      Serial.println(yaw);
-      rightMotorRun(calc_speed);
-      leftMotorRun(-calc_speed);
-      yaw = getYaw();
+      Serial.println("Edge");
+      return(0);
     }
-    
-  motorsStop();
+    else
+    {
+      Serial.print("Green: ");
+      Serial.print(g);
+      Serial.print("          green/blue: ");
+      Serial.println(g/b);
+      return(1);
+    }*/
+  }
+
+  else
+  {
+    Serial.println("No");
+    return 0;
+  }
+  
 }
 
 
 void greensq()
 {
+  if (rcolor == 1 || lcolor == 1)
+  {
     //perhaps insert code to prevent over-turning???
-    int green_val = get_color();
+    int green_val = (rcolor << 1) + lcolor;
+
     switch (green_val)
     {
       case 3:
-        Serial.println("3");
-        enc_turn(180, 100);
+        enc_turn(180);
         break;
       case 2:
-        Serial.println("2");
-        enc_turn(90, 100);
+        enc_turn(90);
         break;
       case 1:
-        Serial.println("1");
-        enc_turn(90, 100);
+        enc_turn(90);
         break;
       default:
-        Serial.println("default/0");
         break;
     }
     
-  
+  }
 }
+
 
 void loop() 
 {
-   //int green_val = get_color();
-   //Serial.println(green_val);
-   greensq();
+  get_color();
 }
