@@ -11,7 +11,7 @@ int getbyte()
 {
   while(Serial3.available() <= 0)
   {
-    delay(0.5);
+   
   }
   return Serial3.read();
 }
