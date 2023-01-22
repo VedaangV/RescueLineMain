@@ -20,7 +20,7 @@ void enc_turn(int deg, int speed)//function for turning a specific amount of deg
   //right turn
   if (deg > 0)
   {
-    //target = yaw + deg;
+   target = yaw + deg;
     if (target > 360)
     {
       target = target - 360;
