@@ -1,41 +1,256 @@
-//EV3, NO TURNS, NO SILVER, INCOMPLETE
+//USING MEDIANS AND AS7262 VERSION 6
+
+#include <QuickMedianLib.h>
+
+float s1[6][3];
+float s2[6][3];
+//float gr_avg = 0;
+float s1_gr_med = 0;
+float s2_gr_med = 0;
+
+float green_check = 6.5;
+
+void get_ok2()
+{
+  //Serial.println("Serail 2 Available  ");
+  //Serial.println(Serial2.available());
+
+  while(Serial2.available())
+  {
+    if(Serial2.read() == 'K')
+    {
+      //Serial.println("found ok");
+      break;
+    }
+  }
+  
+}
+
+void get_ok3()
+{
+  //Serial.println("Serail 3 Available  ");
+  //Serial.println(Serial3.available());
+
+  while(Serial3.available())
+  {
+    if(Serial3.read() == 'K')
+    {
+      //Serial.println("found ok");
+      break;
+    }
+  }
+  
+}
+
 
 void setup() 
 {
+  Serial.begin(115200);
+  
+  Serial2.begin(115200);
+  Serial2.println("ATINTTIME=1");
+
+  while(Serial2.available()==0)
+  {
+    Serial.println("Serial 2 not available");
+  }
+  get_ok2();
+
+  Serial3.begin(115200);
+  Serial3.println("ATINTTIME=1");
+
+  while(Serial3.available()== 0)
+  {
+    Serial.println("Serial 3 not available");
+  }
+  
+  get_ok3();
+
+  //Serial2.println("ATBURST=1");
+  //get_ok2();
+
+  //Serial3.println("ATBURST=1");
+  //get_ok3();
+
+    /*get_ok();
+  Serial2.println("ATBURST=1");
+  get_ok();*/
   
 }
+
 //****************************************************************************************************************\\
 
-int getbyte()
-{
-  while(Serial3.available() <= 0)
-  {
-    delay(0.5);
-  }
-  return Serial3.read();
-}
 
 void get_vals()
 {
-   
+  Serial2.println("ATDATA");
+  get_ok2();
 
+  s1[0][0] = Serial2.parseInt();
+  Serial.print(s1[0][0]);
+  Serial.print("  ");
+  s1[1][0] = Serial2.parseInt();
+  Serial.print(s1[1][0]);
+  Serial.print("  ");
+  s1[2][0] = Serial2.parseInt();
+  Serial.print(s1[2][0]);
+  Serial.print("  ");
+  s1[3][0] = Serial2.parseInt();
+  Serial.print(s1[3][0]);
+  Serial.print("  ");
+  s1[4][0] = Serial2.parseInt();
+  Serial.print(s1[4][0]);
+  Serial.print("  ");
+  s1[5][0] = Serial2.parseInt();
+  Serial.print(s1[5][0]);
+  Serial.println("  ");
+
+Serial2.println("ATDATA");
+  get_ok2();
+  
+  s1[0][1] = Serial2.parseInt();
+  Serial.print(s1[0][1]);
+  Serial.print("  ");
+  s1[1][1] = Serial2.parseInt();
+  Serial.print(s1[1][1]);
+  Serial.print("  ");
+  s1[2][1] = Serial2.parseInt();
+  Serial.print(s1[2][1]);
+  Serial.print("  ");
+  s1[3][1] = Serial2.parseInt();
+  Serial.print(s1[3][1]);
+  Serial.print("  ");
+  s1[4][1] = Serial2.parseInt();
+  Serial.print(s1[4][1]);
+  Serial.print("  ");
+  s1[5][1] = Serial2.parseInt();
+  Serial.print(s1[5][1]);
+  Serial.println("  ");
+
+Serial2.println("ATDATA");
+  get_ok2();
+  
+  s1[0][2] = Serial2.parseInt();
+  Serial.print(s1[0][2]);
+  Serial.print("  ");
+  s1[1][2] = Serial2.parseInt();
+  Serial.print(s1[1][2]);
+  Serial.print("  ");
+  s1[2][2] = Serial2.parseInt();
+  Serial.print(s1[2][2]);
+  Serial.print("  ");
+  s1[3][2] = Serial2.parseInt();
+  Serial.print(s1[3][2]);
+  Serial.print("  ");
+  s1[4][2] = Serial2.parseInt();
+  Serial.print(s1[4][2]);
+  Serial.print("  ");
+  s1[5][2] = Serial2.parseInt();
+  Serial.print(s1[5][2]);
+  Serial.println("  ");
+
+
+//---------------------------------------------------------------------------\\
+
+
+  Serial3.println("ATDATA");
+  get_ok3();
+
+  
+  s2[0][0] = Serial3.parseInt();
+  Serial.print(s2[0][0]);
+  Serial.print("  ");
+  s2[1][0] = Serial3.parseInt();
+  Serial.print(s2[1][0]);
+  Serial.print("  ");
+  s2[2][0] = Serial3.parseInt();
+  Serial.print(s2[2][0]);
+  Serial.print("  ");
+  s2[3][0] = Serial3.parseInt();
+  Serial.print(s2[3][0]);
+  Serial.print("  ");
+  s2[4][0] = Serial3.parseInt();
+  Serial.print(s2[4][0]);
+  Serial.print("  ");
+  s2[5][0] = Serial3.parseInt();
+  Serial.print(s2[5][0]);
+  Serial.println("  ");
+
+  Serial3.println("ATDATA");
+  get_ok3();
+  
+  s2[0][1] = Serial3.parseInt();
+  Serial.print(s2[0][1]);
+  Serial.print("  ");
+  s2[1][1] = Serial3.parseInt();
+  Serial.print(s2[1][1]);
+  Serial.print("  ");
+  s2[2][1] = Serial3.parseInt();
+  Serial.print(s2[2][1]);
+  Serial.print("  ");
+  s2[3][1] = Serial3.parseInt();
+  Serial.print(s2[3][1]);
+  Serial.print("  ");
+  s2[4][1] = Serial3.parseInt();
+  Serial.print(s2[4][1]);
+  Serial.print("  ");
+  s2[5][1] = Serial3.parseInt();
+  Serial.print(s2[5][1]);
+  Serial.println("  ");
+
+  Serial3.println("ATDATA");
+  get_ok3();
+
+  s2[0][2] = Serial3.parseInt();
+  Serial.print(s2[0][2]);
+  Serial.print("  ");
+  s2[1][2] = Serial3.parseInt();
+  Serial.print(s2[1][2]);
+  Serial.print("  ");
+  s2[2][2] = Serial3.parseInt();
+  Serial.print(s2[2][2]);
+  Serial.print("  ");
+  s2[3][2] = Serial3.parseInt();
+  Serial.print(s2[3][2]);
+  Serial.print("  ");
+  s2[4][2] = Serial3.parseInt();
+  Serial.print(s2[4][2]);
+  Serial.print("  ");
+  s2[5][2] = Serial3.parseInt();
+  Serial.print(s2[5][2]);
+  Serial.println("  ");
+
+  
 }
 
 
-int get_color(float green_check)//checks for green based on color vals
+
+
+
+
+int get_color()//checks for green based on color vals
 {
   get_vals();
+ 
+  s1_gr_med = QuickMedian<float>::GetMedian(s1[2], 6) / QuickMedian<float>::GetMedian(s1[5], 6);
+  Serial.print("                    Median1                                                       ");
+  Serial.println(s1_gr_med);
+
+
+  s2_gr_med = QuickMedian<float>::GetMedian(s2[2], 6) / QuickMedian<float>::GetMedian(s2[5], 6);
+  Serial.print("                    Median 2                                                      ");
+  Serial.println(s2_gr_med);
   
   bool rcolor = 0;
   bool lcolor = 0;
   
-  if (green/red >= green_check)
+  if (s1_gr_med >= green_check)
   {
     //Serial.println("right green");
     rcolor = 1;
   }
 
-  if (green/red >= green_check)
+  if (s2_gr_med >= green_check)
   {
     //Serial.println("left green");
     lcolor = 1;
@@ -49,7 +264,7 @@ void greensq()//checks for green and moves accordingly
 {
   //perhaps insert code to prevent over-turning???
   //motorsStop();
-  switch (get_color(4))
+  switch (get_color())
   {
     case 3:
       Serial.println("3");
