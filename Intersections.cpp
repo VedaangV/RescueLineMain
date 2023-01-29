@@ -1,6 +1,4 @@
-//USING MEDIANS AND AS7262 VERSION 6
-
-#include <QuickMedianLib.h>
+//USING MEDIANS AND AS7262
 
 float s1[6][3];
 float s2[6][3];
@@ -8,7 +6,6 @@ float s2[6][3];
 float s1_gr_med = 0;
 float s2_gr_med = 0;
 
-float green_check = 6.5;
 
 void get_ok2()
 {
@@ -42,8 +39,7 @@ void get_ok3()
   
 }
 
-
-void setup() 
+void setup()
 {
   Serial.begin(115200);
   
@@ -77,9 +73,6 @@ void setup()
   get_ok();*/
   
 }
-
-//****************************************************************************************************************\\
-
 
 void get_vals()
 {
@@ -219,75 +212,47 @@ Serial2.println("ATDATA");
   s2[5][2] = Serial3.parseInt();
   Serial.print(s2[5][2]);
   Serial.println("  ");
-
   
 }
 
-
-
-
-
-
-int get_color()//checks for green based on color vals
+float median(float arr[3])
 {
-  get_vals();
- 
-  s1_gr_med = QuickMedian<float>::GetMedian(s1[2], 6) / QuickMedian<float>::GetMedian(s1[5], 6);
-  Serial.print("                    Median1                                                       ");
-  Serial.println(s1_gr_med);
-
-
-  s2_gr_med = QuickMedian<float>::GetMedian(s2[2], 6) / QuickMedian<float>::GetMedian(s2[5], 6);
-  Serial.print("                    Median 2                                                      ");
-  Serial.println(s2_gr_med);
-  
-  bool rcolor = 0;
-  bool lcolor = 0;
-  
-  if (s1_gr_med >= green_check)
-  {
-    //Serial.println("right green");
-    rcolor = 1;
+  float temp;
+  for (int i = 0; i < 3; i++) 
+  {     
+    for (int j = i+1; j < 3; j++) 
+    {     
+      if(arr[i] > arr[j]) 
+      {    
+        temp = arr[i];    
+        arr[i] = arr[j];    
+        arr[j] = temp;    
+      }     
+    }     
   }
 
-  if (s2_gr_med >= green_check)
-  {
-    //Serial.println("left green");
-    lcolor = 1;
-  }
-
-  return ((rcolor << 1) + lcolor);
-
-}
-
-void greensq()//checks for green and moves accordingly
-{
-  //perhaps insert code to prevent over-turning???
-  //motorsStop();
-  switch (get_color())
-  {
-    case 3:
-      Serial.println("3");
-      //enc_turn(180, 100);
-      break;
-    case 2:
-      Serial.println("2");
-      //forwardCm(1.5, 70);
-      //enc_turn(90, 100);
-      break;
-    case 1:
-      Serial.println("1");
-      //forwardCm(1.5, 70);
-      //enc_turn(-90, 100);
-      break;
-    default:
-      Serial.println("0");
-      break;
-  }
-
+  return(arr[1]);
 }
 
 void loop() 
 {
-  greensq();
+  //while(!Serial2.available());
+  //Serial2.println("ATDATA");
+
+  get_vals();
+
+  s1_gr_med = median(s1[2]) / median(s2[5]);
+  Serial.print("Median1                                                       ");
+  Serial.println(s1_gr_med);
+
+  s2_gr_med = median(s2[2]) / median(s2[5]);
+  Serial.print("Median 2                                                      ");
+  Serial.println(s2_gr_med);
+
+
+  
+  //Serial.println(gr_avg);
+  
+ 
+  
 }
