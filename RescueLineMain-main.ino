@@ -31,7 +31,7 @@ void loop() {
       break;
 
     default:
-      go_motors(50);
+      lineTrace();
       break;
 
 
