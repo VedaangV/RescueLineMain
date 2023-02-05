@@ -1,12 +1,10 @@
-//USING MEDIANS AND AS7262
-//V6
+//V7
 
-float s1[6][3];
-float s2[6][3];
+float s1[6];
+float s2[6];
 //float gr_avg = 0;
-float s1_gr_med = 0;
-float s2_gr_med = 0;
 
+float green_check = 6.5;
 
 void get_ok2()
 {
@@ -40,7 +38,8 @@ void get_ok3()
   
 }
 
-void setup()
+
+void setup() 
 {
   Serial.begin(115200);
   
@@ -75,72 +74,31 @@ void setup()
   
 }
 
+//****************************************************************************************************************\\
+
+
 void get_vals()
 {
   Serial2.println("ATDATA");
   get_ok2();
 
-  s1[0][0] = Serial2.parseInt();
-  Serial.print(s1[0][0]);
+  s1[0] = Serial2.parseInt();
+  Serial.print(s1[0]);
   Serial.print("  ");
-  s1[1][0] = Serial2.parseInt();
-  Serial.print(s1[1][0]);
+  s1[1] = Serial2.parseInt();
+  Serial.print(s1[1]);
   Serial.print("  ");
-  s1[2][0] = Serial2.parseInt();
-  Serial.print(s1[2][0]);
+  s1[2] = Serial2.parseInt();
+  Serial.print(s1[2]);
   Serial.print("  ");
-  s1[3][0] = Serial2.parseInt();
-  Serial.print(s1[3][0]);
+  s1[3] = Serial2.parseInt();
+  Serial.print(s1[3]);
   Serial.print("  ");
-  s1[4][0] = Serial2.parseInt();
-  Serial.print(s1[4][0]);
+  s1[4] = Serial2.parseInt();
+  Serial.print(s1[4]);
   Serial.print("  ");
-  s1[5][0] = Serial2.parseInt();
-  Serial.print(s1[5][0]);
-  Serial.println("  ");
-
-Serial2.println("ATDATA");
-  get_ok2();
-  
-  s1[0][1] = Serial2.parseInt();
-  Serial.print(s1[0][1]);
-  Serial.print("  ");
-  s1[1][1] = Serial2.parseInt();
-  Serial.print(s1[1][1]);
-  Serial.print("  ");
-  s1[2][1] = Serial2.parseInt();
-  Serial.print(s1[2][1]);
-  Serial.print("  ");
-  s1[3][1] = Serial2.parseInt();
-  Serial.print(s1[3][1]);
-  Serial.print("  ");
-  s1[4][1] = Serial2.parseInt();
-  Serial.print(s1[4][1]);
-  Serial.print("  ");
-  s1[5][1] = Serial2.parseInt();
-  Serial.print(s1[5][1]);
-  Serial.println("  ");
-
-Serial2.println("ATDATA");
-  get_ok2();
-  
-  s1[0][2] = Serial2.parseInt();
-  Serial.print(s1[0][2]);
-  Serial.print("  ");
-  s1[1][2] = Serial2.parseInt();
-  Serial.print(s1[1][2]);
-  Serial.print("  ");
-  s1[2][2] = Serial2.parseInt();
-  Serial.print(s1[2][2]);
-  Serial.print("  ");
-  s1[3][2] = Serial2.parseInt();
-  Serial.print(s1[3][2]);
-  Serial.print("  ");
-  s1[4][2] = Serial2.parseInt();
-  Serial.print(s1[4][2]);
-  Serial.print("  ");
-  s1[5][2] = Serial2.parseInt();
-  Serial.print(s1[5][2]);
+  s1[5] = Serial2.parseInt();
+  Serial.print(s1[5]);
   Serial.println("  ");
 
 
@@ -151,113 +109,45 @@ Serial2.println("ATDATA");
   get_ok3();
 
   
-  s2[0][0] = Serial3.parseInt();
-  Serial.print(s2[0][0]);
+  s2[0] = Serial3.parseInt();
+  Serial.print(s2[0]);
   Serial.print("  ");
-  s2[1][0] = Serial3.parseInt();
-  Serial.print(s2[1][0]);
+  s2[1] = Serial3.parseInt();
+  Serial.print(s2[1]);
   Serial.print("  ");
-  s2[2][0] = Serial3.parseInt();
-  Serial.print(s2[2][0]);
+  s2[2] = Serial3.parseInt();
+  Serial.print(s2[2]);
   Serial.print("  ");
-  s2[3][0] = Serial3.parseInt();
-  Serial.print(s2[3][0]);
+  s2[3] = Serial3.parseInt();
+  Serial.print(s2[3]);
   Serial.print("  ");
-  s2[4][0] = Serial3.parseInt();
-  Serial.print(s2[4][0]);
+  s2[4] = Serial3.parseInt();
+  Serial.print(s2[4]);
   Serial.print("  ");
-  s2[5][0] = Serial3.parseInt();
-  Serial.print(s2[5][0]);
+  s2[5] = Serial3.parseInt();
+  Serial.print(s2[5]);
   Serial.println("  ");
-
-  Serial3.println("ATDATA");
-  get_ok3();
-  
-  s2[0][1] = Serial3.parseInt();
-  Serial.print(s2[0][1]);
-  Serial.print("  ");
-  s2[1][1] = Serial3.parseInt();
-  Serial.print(s2[1][1]);
-  Serial.print("  ");
-  s2[2][1] = Serial3.parseInt();
-  Serial.print(s2[2][1]);
-  Serial.print("  ");
-  s2[3][1] = Serial3.parseInt();
-  Serial.print(s2[3][1]);
-  Serial.print("  ");
-  s2[4][1] = Serial3.parseInt();
-  Serial.print(s2[4][1]);
-  Serial.print("  ");
-  s2[5][1] = Serial3.parseInt();
-  Serial.print(s2[5][1]);
-  Serial.println("  ");
-
-  Serial3.println("ATDATA");
-  get_ok3();
-
-  s2[0][2] = Serial3.parseInt();
-  Serial.print(s2[0][2]);
-  Serial.print("  ");
-  s2[1][2] = Serial3.parseInt();
-  Serial.print(s2[1][2]);
-  Serial.print("  ");
-  s2[2][2] = Serial3.parseInt();
-  Serial.print(s2[2][2]);
-  Serial.print("  ");
-  s2[3][2] = Serial3.parseInt();
-  Serial.print(s2[3][2]);
-  Serial.print("  ");
-  s2[4][2] = Serial3.parseInt();
-  Serial.print(s2[4][2]);
-  Serial.print("  ");
-  s2[5][2] = Serial3.parseInt();
-  Serial.print(s2[5][2]);
-  Serial.println("  ");
-  
 }
 
-float median(float arr[3])
-{
-  float temp;
-  for (int i = 0; i < 3; i++) 
-  {     
-    for (int j = i+1; j < 3; j++) 
-    {     
-      if(arr[i] > arr[j]) 
-      {    
-        temp = arr[i];    
-        arr[i] = arr[j];    
-        arr[j] = temp;    
-      }     
-    }     
-  }
 
-  return(arr[1]);
-}
+
+
+
 
 int get_color()//checks for green based on color vals
 {
   get_vals();
  
-  s1_gr_med = median(s1[2]) / median(s1[5];
-  Serial.print("                    Median1                                                       ");
-  Serial.println(s1_gr_med);
-
-
-  s2_gr_med = median(s2[2]) / median(s2[5];
-  Serial.print("                    Median 2                                                      ");
-  Serial.println(s2_gr_med);
-  
   bool rcolor = 0;
   bool lcolor = 0;
   
-  if (s1_gr_med >= green_check)
+  if (s1[2]/s1[5] >= green_check)
   {
     //Serial.println("right green");
     rcolor = 1;
   }
 
-  if (s2_gr_med >= green_check)
+  if (s2[2]/s2[5] >= green_check)
   {
     //Serial.println("left green");
     lcolor = 1;
@@ -292,4 +182,9 @@ void greensq()//checks for green and moves accordingly
       break;
   }
 
+}
+
+void loop() 
+{
+  greensq();
 }
