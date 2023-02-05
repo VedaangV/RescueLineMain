@@ -1,4 +1,5 @@
 //USING MEDIANS AND AS7262
+//V6
 
 float s1[6][3];
 float s2[6][3];
