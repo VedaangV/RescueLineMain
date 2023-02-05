@@ -234,25 +234,61 @@ float median(float arr[3])
   return(arr[1]);
 }
 
-void loop() 
+int get_color()//checks for green based on color vals
 {
-  //while(!Serial2.available());
-  //Serial2.println("ATDATA");
-
   get_vals();
-
-  s1_gr_med = median(s1[2]) / median(s2[5]);
-  Serial.print("Median1                                                       ");
+ 
+  s1_gr_med = median(s1[2]) / median(s1[5];
+  Serial.print("                    Median1                                                       ");
   Serial.println(s1_gr_med);
 
-  s2_gr_med = median(s2[2]) / median(s2[5]);
-  Serial.print("Median 2                                                      ");
+
+  s2_gr_med = median(s2[2]) / median(s2[5];
+  Serial.print("                    Median 2                                                      ");
   Serial.println(s2_gr_med);
+  
+  bool rcolor = 0;
+  bool lcolor = 0;
+  
+  if (s1_gr_med >= green_check)
+  {
+    //Serial.println("right green");
+    rcolor = 1;
+  }
 
+  if (s2_gr_med >= green_check)
+  {
+    //Serial.println("left green");
+    lcolor = 1;
+  }
 
-  
-  //Serial.println(gr_avg);
-  
- 
-  
+  return ((rcolor << 1) + lcolor);
+
+}
+
+void greensq()//checks for green and moves accordingly
+{
+  //perhaps insert code to prevent over-turning???
+  //motorsStop();
+  switch (get_color())
+  {
+    case 3:
+      Serial.println("3");
+      //enc_turn(180, 100);
+      break;
+    case 2:
+      Serial.println("2");
+      //forwardCm(1.5, 70);
+      //enc_turn(90, 100);
+      break;
+    case 1:
+      Serial.println("1");
+      //forwardCm(1.5, 70);
+      //enc_turn(-90, 100);
+      break;
+    default:
+      Serial.println("0");
+      break;
+  }
+
 }
