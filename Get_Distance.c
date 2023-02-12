@@ -2,10 +2,10 @@
 //ultrasonic
 volatile long pulseMsSt = 0;
 volatile long pulseMsEd = 0;
-volatile bool pulseFirst = 1;
+volatile int pulseFirst = 1;
 
 //isr that is needed
- attachInterrupt(digitalPinToInterrupt(2), distanceISR,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(2), distanceISR,CHANGE);
 
 void distanceISR()
 {
