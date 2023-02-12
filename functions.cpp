@@ -1,8 +1,5 @@
 //below are essential functions, used all across our project.
 #include "Header.h"
-#include "MeMegaPi.h"
-MeMegaPiDCMotor lmotor(PORT1B);//left motor
-MeMegaPiDCMotor rmotor(PORT2B);//right motor
 volatile int enc = 0;
 
 float cm_to_encoders(float cm) {
@@ -22,16 +19,14 @@ void Interruptfunc() {
 void forward_enc(int encoders, int motor_speed) {//go forward for enc
   enc = 0;
   while (enc <= encoders) {
-    lmotor.run(motor_speed);
-    rmotor.run(-1 * motor_speed);
+    setMultipleMotors(motor_speed,motor_speed);
   }
   setMultipleMotors(0, 0);
 }
 void backward_enc(int encoders, int motor_speed) {//go backward for enc
   enc = 0;
   while (enc >= -1 * encoders) {
-    lmotor.run(-1 * motor_speed);
-    rmotor.run(motor_speed);
+    setMultipleMotors(-motor_speed,-motor_speed);
   }
   setMultipleMotors(0, 0);
 }
@@ -42,25 +37,67 @@ void forwardCm(float dist, int motor_speed) {//go forward for cm
   forward_enc(cm_to_encoders(dist), motor_speed);
 }
 
-void setMultipleMotors(int left, int right) { //sets motors
-  lmotor.run(left);
-  rmotor.run(-1 * right);
+
+
+void setMultipleMotors(int left, int right){
+  //port 1
+  left = left > 255 ? 255 : left;
+  left = left < -255 ? -255 : left;
+ 
+  if(left > 0)
+  {
+    digitalWrite(35, LOW);
+    delayMicroseconds(5);
+    digitalWrite(34, HIGH);
+    analogWrite(12,left);//pwm pin 12
+  }
+  else if(left < 0)
+  {
+    digitalWrite(34, LOW);
+    delayMicroseconds(5);
+    digitalWrite(35, HIGH);
+    analogWrite(12,-left);
+  }
+  else
+  {
+    digitalWrite(34, LOW);
+    digitalWrite(35, LOW);
+    analogWrite(12,0);
+  }
+
+  right = left > 255 ? 255 : right;
+  right = right < -255 ? -255 : right;
+  right = -right;
+  if(right > 0)
+  {
+    digitalWrite(36, LOW);
+    delayMicroseconds(5);
+    digitalWrite(37, HIGH);
+    analogWrite(8,right);
+  }
+  else if(right < 0)
+  {
+    digitalWrite(37, LOW);
+    delayMicroseconds(5);
+    digitalWrite(36, HIGH);
+    analogWrite(8,-right);
+  }
+  else
+  {
+    digitalWrite(36, LOW);
+    digitalWrite(37, LOW);
+    analogWrite(8,0);
+  }
+
 }
 void go_motors(int motorSpeed) { //goes forward
-  lmotor.run(motorSpeed);
-  rmotor.run(-1 * motorSpeed);
-}
-void basic_turn(int motorSpeed) { //basic turn
-  lmotor.run(motorSpeed);
-  rmotor.run(motorSpeed);
+  setMultipleMotors(motorSpeed,motorSpeed);
 }
 void rturn(int motorSpeed) { //right turn
-  lmotor.run(motorSpeed);
-  rmotor.run(motorSpeed);
+  setMultipleMotors(motorSpeed,-motorSpeed);
 }
 void lturn(int motorSpeed) { //left turn
-  lmotor.run(-1 * motorSpeed);
-  rmotor.run(-1 * motorSpeed);
+  setMultipleMotors(-motorSpeed,motorSpeed);
 }
 void tcaselect(uint8_t i) {
   if (i > 7) return;
@@ -69,14 +106,13 @@ void tcaselect(uint8_t i) {
   Wire.endTransmission();
 }
 void rightMotorRun(int motorSpeed) { //move right motor
-  rmotor.run(-1 * motorSpeed);
+  setMultipleMotors(0,motorSpeed);
 }
 void leftMotorRun(int motorSpeed) { //move left motor
-  lmotor.run(motorSpeed);
+  setMultipleMotors(motorSpeed,0);
 }
 void motorsStop() { //stop all motors
-  lmotor.run(0);
-  rmotor.run(0);
+  setMultipleMotors(0,0);
 }
 int getCase() { //checks for all important cases during a run. Based on the return val, the main function is determined.
   /*if(<silver condition>){EVAC
