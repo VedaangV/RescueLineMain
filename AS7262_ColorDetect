@@ -1,4 +1,9 @@
-
+float v = 0;
+float b = 0;
+float g = 0;
+float y = 0;
+float o = 0;
+float r = 0;
 void get_ok()
 {
   //Serial.println("in get ok");
@@ -12,14 +17,15 @@ void get_ok()
   }
 }
 
-void setup() 
+void setup()
 {
   Serial.begin(115200);
   Serial2.begin(115200);
-  /*Serial2.println("ATINTTIME=1");
-  get_ok();
+  Serial2.println("ATINTTIME=1");
+  /*get_ok();
   Serial2.println("ATBURST=1");
   get_ok();*/
+  
 }
 
 void loop() 
@@ -27,27 +33,70 @@ void loop()
   //while(!Serial2.available());
   Serial2.println("ATDATA");
   get_ok();
+
+  //ratio = 4.5
   
   //Serial.println(Serial2.available());
   //Serial.println(Serial2.read());
   
-  Serial.print("v:");
+  //Serial.print("v:");
+  /*Serial.print(Serial2.parseInt());
+  Serial.print(" ");
+  
+  //Serial.print(",b:");
   Serial.print(Serial2.parseInt());
+  Serial.print(" ");
+
+  //Serial.print(",g:");
+  Serial.print(Serial2.parseInt());
+  Serial.print(" ");
+
+  //Serial.print(",y:");
+  Serial.print(Serial2.parseInt());
+  Serial.print(" ");
+
+  //Serial.print(",o:");
+  Serial.print(Serial2.parseInt());
+  Serial.print(" ");
+
+  //Serial.print(",r:");
+  Serial.print(Serial2.parseInt());
+  Serial.println(" ");*/
+
+  
+ 
+  Serial.print("v:");
+  v = Serial2.parseInt();
+  Serial.print(v);
   
   Serial.print(",b:");
-  Serial.print(Serial2.parseInt());
+  b = Serial2.parseInt();
+  Serial.print(b);
 
   Serial.print(",g:");
-  Serial.print(Serial2.parseInt());
+  g = Serial2.parseInt();
+  Serial.print(g);
 
   Serial.print(",y:");
-  Serial.print(Serial2.parseInt());
+  y = Serial2.parseInt();
+  Serial.print(y);
 
   Serial.print(",o:");
-  Serial.print(Serial2.parseInt());
+  o = Serial2.parseInt();
+  Serial.print(o);
 
   Serial.print(",r:");
-  Serial.println(Serial2.parseInt());
+  r = Serial2.parseInt();
+  Serial.print(r);
+
+  Serial.print("  g/r:");
+
+  if(r == 0)
+  {
+    r = 1;
+  }
+  
+  Serial.println(g/r);
 
   
 
