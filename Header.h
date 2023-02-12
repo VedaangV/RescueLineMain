@@ -52,4 +52,6 @@ void bnoSetup();
 void tcaselect(uint8_t i);
 int getCase();
 float qtr_average(int start, int finish);
+void get_ok2();
+void get_ok3();
 #endif
