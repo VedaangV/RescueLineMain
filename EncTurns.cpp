@@ -1,82 +1,60 @@
 #include "Header.h"
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-int BNO055_SAMPLERATE_DELAY_MS = (10);
-imu::Vector<3> rot;
-int BNO = 2;
-float yaw = 0.0;
-
+float yaw = 0;
 const int m1_forward = -75;
 const int m2_forward = 75;
-//****************************************************************************************************************\\
 
-
-void enc_turn(int deg, int speed)//function for turning a specific amount of degrees.
+float getYaw()
 {
-  tcaselect(BNO);
-  int target = deg;
-  motorsStop();
-  yaw = getYaw();
-
-  //right turn
-  if (deg > 0)
-  {
-   target = yaw + deg;
-    if (target > 360)
-    {
-      target = target - 360;
-    }
-
-    while (/*yaw > target + 1 ||*/ yaw < target - 1)
-    {
-      rightMotorRun(-speed);
-      leftMotorRun(speed);
-      yaw = getYaw();
-      Serial.print("Yaw: ");
-      Serial.println(yaw);
-    }
-    motorsStop();
-  }
-
-  //left turn
-  if (deg < 0)
-  {
-    if (yaw < abs(deg))
-    {
-      target = yaw + (360 - abs(deg));
-    }
-
-    else
-    {
-      target = yaw - abs(deg);
-    }
-    while (yaw > target + 2 /*|| yaw < target - 2*/)
-    {
-      rightMotorRun(speed);
-      leftMotorRun(-speed);
-      yaw = getYaw();
-    }
-
-    while (yaw > target)
-    {
-      lturn(speed);
-      yaw = getYaw();
-    }
-    motorsStop();
-  }
-
-}
-float getYaw() { //gets yaw from BNO
-  tcaselect(BNO);
   sensors_event_t orientationData;
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   return orientationData.orientation.x;
 }
-void bnoSetup() { //bno init
-  tcaselect(BNO);
+
+void enc_turn(int deg, int speed)
+{
+  
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
+  target = yaw + deg;
+
+  if (target < 0)
+  {
+    target+= 360;
+  }
+
+  else if (target > 360)
+  {
+    target -= 360;
+  }
+  Serial.print("Degree: ");
+  Serial.println(deg);
+  
+  Serial.print("target: ");
+  Serial.println(target);
+  int calc_speed = ((deg * -1) * speed) / abs(deg);
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
+  Serial.println(calc_speed);
+  Serial.print("LEFT MOTOR: ");
+  Serial.println(-calc_speed);
+
+  while ((yaw > target + 2) || (yaw < target - 2))
+    {
+      Serial.println(yaw);
+      setMultipleMotors(-calc_speed,calc_speed);
+      yaw = getYaw();
+    }
+    
+  motorsStop();
+}
+void bnoSetup()
+{
   if (!bno.begin(8))
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while (1) {};
+    while (1);
   }
 }
