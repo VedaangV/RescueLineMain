@@ -40,7 +40,7 @@ void loop()
   //Serial.println(Serial2.read());
   
   //Serial.print("v:");
-  /*Serial.print(Serial2.parseInt());
+  Serial.print(Serial2.parseInt());
   Serial.print(" ");
   
   //Serial.print(",b:");
@@ -61,44 +61,5 @@ void loop()
 
   //Serial.print(",r:");
   Serial.print(Serial2.parseInt());
-  Serial.println(" ");*/
-
-  
- 
-  Serial.print("v:");
-  v = Serial2.parseInt();
-  Serial.print(v);
-  
-  Serial.print(",b:");
-  b = Serial2.parseInt();
-  Serial.print(b);
-
-  Serial.print(",g:");
-  g = Serial2.parseInt();
-  Serial.print(g);
-
-  Serial.print(",y:");
-  y = Serial2.parseInt();
-  Serial.print(y);
-
-  Serial.print(",o:");
-  o = Serial2.parseInt();
-  Serial.print(o);
-
-  Serial.print(",r:");
-  r = Serial2.parseInt();
-  Serial.print(r);
-
-  Serial.print("  g/r:");
-
-  if(r == 0)
-  {
-    r = 1;
-  }
-  
-  Serial.println(g/r);
-
-  
-
-  
+  Serial.println(" ");
 }
