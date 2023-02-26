@@ -1,11 +1,14 @@
-//v8
+//v9
 #include "Header.h"
 float s1[6];
 float s2[6];
 //float gr_avg = 0;
 
-float green_check = 13;
+float green_check = 11;
 int green_count = 0;
+int sum1 = 0;
+int sum2 = 0;
+
 
 void get_ok2()
 {
@@ -53,6 +56,10 @@ void get_vals()
   s1[4] = Serial2.parseInt();
   s1[5] = Serial2.parseInt();
 
+  sum1 = s1[2] + s1[3] + s1[4] + s1[5];
+  Serial.print("sum 1: ");
+  Serial.println(sum1);
+
   /*Serial.print(s1[0]);
     Serial.print("  ");
     Serial.print(s1[1]);
@@ -82,6 +89,10 @@ void get_vals()
   s2[4] = Serial3.parseInt();
   s2[5] = Serial3.parseInt();
 
+  sum2 = s2[2] + s2[3] + s2[4] + s2[5];
+
+  Serial.print("Sum 2: ");
+  Serial.println(sum2);
 
   /*Serial.print(s2[0]);
     Serial.print("  ");
@@ -122,14 +133,18 @@ int get_color()//checks for green based on color vals
   bool rcolor = 0;
   bool lcolor = 0;
 
+  Serial.print("s1: ");
+  Serial.println(s1[2] / s1[5]);
+  Serial.print("s2: ");
+  Serial.println(s2[2] / s2[5]);
 
-  if (s1[2] / s1[5] >= green_check)
+  if (s1[2] / s1[5] >= green_check && sum1 >= 25 && sum1 <= 65)
   {
     //Serial.println("right green");
     rcolor = 1;
   }
 
-  if (s2[2] / s2[5] >= green_check)
+  if (s2[2] / s2[5] >= green_check && sum2 >= 25 && sum2 <= 65)
   {
     //Serial.println("left green");
     lcolor = 1;
@@ -153,7 +168,7 @@ void greensq()//checks for green and moves accordingly
       green_count++;
       //motorsStop();
       //delay(5000);
-      if (green_count > 3)
+      if (green_count > 5)
       {
         //delay(5000);
         enc_turn(180, 150);
@@ -169,17 +184,18 @@ void greensq()//checks for green and moves accordingly
       green_count++;
      //motorsStop();
       //delay(5000);
-      if (green_count > 3)
+      if (green_count > 5)
       {
+      
         go_motors(150);
-        delay(50);
+        delay(90);
         motorsStop();
         delay(500);
         enc_turn(90, 100);
         //motorsStop();
         //delay(5000);
         Serial.print("GREEN 2");
-        green_count = 0;
+       
       }
       break;
 
@@ -190,17 +206,16 @@ void greensq()//checks for green and moves accordingly
       green_count++;
       //motorsStop();
       //delay(5000);
-      if (green_count > 3)
+      if (green_count > 5)
       {
         go_motors(150);
-        delay(200);
+        delay(90);
         motorsStop();
-        delay(50);
+        delay(500);
         enc_turn(-90, 100);
         //motorsStop();
         //delay(5000);
         Serial.print("GREEN 1");
-        green_count = 0;
       }
       break;
 
