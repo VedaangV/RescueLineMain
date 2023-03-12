@@ -1,41 +1,42 @@
-//v9
+//v10
 #include "Header.h"
-float s1[6];
-float s2[6];
-//float gr_avg = 0;
+float rsensor[6];
+float lsensor[6];
 
-float green_check = 11;
+#define falseGreen()  ((check_left() == 2) || (check_right() == 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
+#define greenCounter() (green_count > 5) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
+#define seeGradient(s)  (s >= 25 && s <= 65)
+
+const float green_check = 11;
+
+const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1;
+
+enum colors {V=0, B=1, G=2, Y=3, O=4, R=5};
+
 int green_count = 0;
-int sum1 = 0;
-int sum2 = 0;
+int rsum = 0;
+int lsum = 0;
 
 
-void get_ok2()
+//after reading values, as7262 sensors print out "OK" get_ok functions search for the "OK" on Serial 2 and Serial 3 respectively to remove the "OK" so it doesn't interfere with reading
+void get_ok2() //searches on serial 2
 {
-  //Serial.println("Serail 2 Available  ");
-  //Serial.println(Serial2.available());
-
   while (Serial2.available())
   {
     if (Serial2.read() == 'K')
     {
-      //Serial.println("found ok");
       break;
     }
   }
 
 }
 
-void get_ok3()
+void get_ok3() //searches on serial 3
 {
-  //Serial.println("Serail 3 Available  ");
-  //Serial.println(Serial3.available());
-
   while (Serial3.available())
   {
     if (Serial3.read() == 'K')
     {
-      //Serial.println("found ok");
       break;
     }
   }
@@ -46,82 +47,105 @@ void get_ok3()
 
 void get_vals()
 {
-  Serial2.println("ATDATA");
+  Serial2.println("ATDATA"); //command to request data
   get_ok2();
 
-  s1[0] = Serial2.parseInt();
-  s1[1] = Serial2.parseInt();
-  s1[2] = Serial2.parseInt();
-  s1[3] = Serial2.parseInt();
-  s1[4] = Serial2.parseInt();
-  s1[5] = Serial2.parseInt();
+  rsensor[V] = Serial2.parseInt(); //will return as zero because sensor is on bank mode 1
+  rsensor[B] = Serial2.parseInt(); //will return as zero because sensor is on bank more 1
+  rsensor[G] = Serial2.parseInt();
+  rsensor[Y] = Serial2.parseInt();
+  rsensor[O] = Serial2.parseInt();
+  rsensor[R] = Serial2.parseInt();
 
-  sum1 = s1[2] + s1[3] + s1[4] + s1[5];
-  Serial.print("sum 1: ");
-  Serial.println(sum1);
 
-  /*Serial.print(s1[0]);
+  /*
+   //extra code for printing- use either this or the above code 
+    Serial.print(rsensor[V]);
     Serial.print("  ");
-    Serial.print(s1[1]);
+    Serial.print(rsensor[B]);
     Serial.print("  ");
-    Serial.print(s1[2]);
+    Serial.print(rsensor[G]);
     Serial.print("  ");
-    Serial.print(s1[3]);
+    Serial.print(rsensor[Y]);
     Serial.print("  ");
-    Serial.print(s1[4]);
+    Serial.print(rsensor[O]);
     Serial.print("  ");
-    Serial.print(s1[5]);
+    Serial.print(rsensor[R]);
     Serial.println("  ");*/
+
+ 
+  rsum = rsensor[G] + rsensor[Y] + rsensor[O] + rsensor[R];
+  
+  //Serial.print("Sum right: ");
+  //Serial.println(rsum);
 
 
 
 
   //---------------------------------------------------------------------------\\
 
-  Serial3.println("ATDATA");
+  Serial3.println("ATDATA"); //command to request data
   get_ok3();
 
 
-  s2[0] = Serial3.parseInt();
-  s2[1] = Serial3.parseInt();
-  s2[2] = Serial3.parseInt();
-  s2[3] = Serial3.parseInt();
-  s2[4] = Serial3.parseInt();
-  s2[5] = Serial3.parseInt();
+  lsensor[V] = Serial3.parseInt(); //will return as zero because sensor is on bank mode 1
+  lsensor[B] = Serial3.parseInt(); //will return as zero because sensor is on bank mode 2
+  lsensor[G] = Serial3.parseInt();
+  lsensor[Y] = Serial3.parseInt();
+  lsensor[O] = Serial3.parseInt();
+  lsensor[R] = Serial3.parseInt();
 
-  sum2 = s2[2] + s2[3] + s2[4] + s2[5];
 
-  Serial.print("Sum 2: ");
-  Serial.println(sum2);
-
-  /*Serial.print(s2[0]);
+  /*
+    //extra code for printing- use either this or above code
+    Serial.print(lsensor[V]);
     Serial.print("  ");
-    Serial.print(s2[1]);
+    Serial.print(lsensor[B]);
     Serial.print("  ");
-    Serial.print(s2[2]);
+    Serial.print(lsensor[G]);
     Serial.print("  ");
-    Serial.print(s2[3]);
+    Serial.print(lsensor[Y]);
     Serial.print("  ");
-    Serial.print(s2[4]);
+    Serial.print(lsensor[O]);
     Serial.print("  ");
-    Serial.print(s2[5]);
+    Serial.print(lsensor[R]);
     Serial.println("  ");*/
 
   //Since we are using the g/r ratio to detect green, r cannot be equal to zero. if r == 0, set it to 1
-  if (s1[5] == 0)
+  if (rsensor[R] == 0)
   {
-    s1[5] = 1;
+    rsensor[R] = 1;
   }
 
-  if (s2[5] == 0)
+  if (lsensor[R] == 0)
   {
-    s2[5] = 1;
+    lsensor[R] = 1;
   }
+
+  
+  lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
+
+  //Serial.print("Sum Left: ");
+  //Serial.println(lsum);
 
 
 }
 
+int greensqturn(int turn_target) //code for turning after detecting greensq
+{
+  go_motors(150);
+  delay(90);
+  motorsStop();
+  delay(500);
+  enc_turn(turn_target, 100);   
+}
 
+void nudge() //nudges robot forward to determine accidental green
+{
+  go_motors(100);
+  delay(5);
+  motorsStop();
+}
 
 
 
@@ -130,97 +154,94 @@ int get_color()//checks for green based on color vals
 {
   get_vals();
 
-  bool rcolor = 0;
-  bool lcolor = 0;
+  bool rcolor = 0; //set to 1 if rsensor is determined to be seeing green
+  bool lcolor = 0; //set to 1 if lsensor is determined to be seeing green
 
-  Serial.print("s1: ");
-  Serial.println(s1[2] / s1[5]);
-  Serial.print("s2: ");
-  Serial.println(s2[2] / s2[5]);
+  /*Serial.print("rsensor: ");
+  Serial.println(rsensor[G] / rsensor[R]);//green over red
+  Serial.print("lsensor: ");
+  Serial.println(lsensor[G] / lsensor[R]);//green over red*/ 
 
-  if (s1[2] / s1[5] >= green_check && sum1 >= 25 && sum1 <= 65)
+
+
+  if (rsensor[G] / rsensor[R] >= green_check && seeGradient(rsum)) //is right sensor seeing green?
   {
-    //Serial.println("right green");
     rcolor = 1;
   }
 
-  if (s2[2] / s2[5] >= green_check && sum2 >= 25 && sum2 <= 65)
+  if (lsensor[G] / lsensor[R] >= green_check && seeGradient(lsum)) //is left sensor seeing green?
   {
     //Serial.println("left green");
     lcolor = 1;
   }
 
-  return ((rcolor << 1) + lcolor);
+  return ((rcolor << 1) + lcolor); //creates binary number: 11=double green, 10=right green, 01=left green, 00=no green
 
 }
 
 void greensq()//checks for green and moves accordingly
 {
+  //setting indicator LED to green color
   digitalWrite(A10, HIGH);
   digitalWrite(A9, LOW);
   digitalWrite(A11, LOW);
-  //perhaps insert code to prevent over-turning???
-  //motorsStop();
-  switch (get_color())
+
+  
+  switch (get_color()) 
   {
-    case 3:
-      Serial.println("check 3");
+    case doubleGreen:
+      //Serial.println("check doubleGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
-      //motorsStop();
-      //delay(5000);
-      if (green_count > 5)
+      if (!falseGreen() && greenCounter())
       {
-        //delay(5000);
+        //Serial.print("GREEN 3");
         enc_turn(180, 150);
-        Serial.print("GREEN 3");
         green_count = 0;
       }
       break;
 
-    case 2:
-      //motorsStop();
-      //delay(5);
-      Serial.println("check 2");
+    case rightGreen:
+      //Serial.println("check rightGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
-     //motorsStop();
-      //delay(5000);
-      if (green_count > 5)
-      {
       
-        go_motors(150);
-        delay(90);
-        motorsStop();
-        delay(500);
-        enc_turn(90, 100);
-        //motorsStop();
-        //delay(5000);
-        Serial.print("GREEN 2");
+      if (!falseGreen() && greenCounter())
+      {
+        nudge();
+        if(get_color() == 2) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        {
+          greensqturn(90);   
+          green_count = 0;      
+        }
+
+        else
+        {
+          green_count = 0;
+        }
        
       }
       break;
 
-    case 1:
-      //motorsStop();
-      //delay(5);
-      Serial.println("check 1");
+    case leftGreen:
+      //Serial.println("check leftGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
-      //motorsStop();
-      //delay(5000);
-      if (green_count > 5)
+      
+      if (!falseGreen() && greenCounter())
       {
-        go_motors(150);
-        delay(90);
-        motorsStop();
-        delay(500);
-        enc_turn(-90, 100);
-        //motorsStop();
-        //delay(5000);
-        Serial.print("GREEN 1");
+        nudge();
+        if(get_color() == 1) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        {
+          greensqturn(-90); 
+          green_count = 0;      
+        }
+
+        else
+        {
+          green_count = 0;
+        }
       }
       break;
 
-    default:
-      Serial.println("0");
+    default: //robot is not detecting green
       green_count = 0;
       break;
   }
