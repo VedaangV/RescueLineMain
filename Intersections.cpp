@@ -1,10 +1,9 @@
-//V7
-
 float s1[6];
 float s2[6];
 //float gr_avg = 0;
 
-float green_check = 6.5;
+float green_check = 11;
+int green_count = 0;
 
 void get_ok2()
 {
@@ -83,23 +82,26 @@ void get_vals()
   get_ok2();
 
   s1[0] = Serial2.parseInt();
-  Serial.print(s1[0]);
-  Serial.print("  ");
   s1[1] = Serial2.parseInt();
+  s1[2] = Serial2.parseInt();
+  s1[3] = Serial2.parseInt();
+  s1[4] = Serial2.parseInt();
+  s1[5] = Serial2.parseInt();
+  
+  /*Serial.print(s1[0]);
+  Serial.print("  ");
   Serial.print(s1[1]);
   Serial.print("  ");
-  s1[2] = Serial2.parseInt();
   Serial.print(s1[2]);
   Serial.print("  ");
-  s1[3] = Serial2.parseInt();
   Serial.print(s1[3]);
   Serial.print("  ");
-  s1[4] = Serial2.parseInt();
   Serial.print(s1[4]);
   Serial.print("  ");
-  s1[5] = Serial2.parseInt();
   Serial.print(s1[5]);
-  Serial.println("  ");
+  Serial.println("  ");*/
+
+  
 
 
 //---------------------------------------------------------------------------\\
@@ -110,23 +112,38 @@ void get_vals()
 
   
   s2[0] = Serial3.parseInt();
-  Serial.print(s2[0]);
-  Serial.print("  ");
   s2[1] = Serial3.parseInt();
+  s2[2] = Serial3.parseInt();
+  s2[3] = Serial3.parseInt();
+  s2[4] = Serial3.parseInt();
+  s2[5] = Serial3.parseInt();
+  
+
+  /*Serial.print(s2[0]);
+  Serial.print("  ");
   Serial.print(s2[1]);
   Serial.print("  ");
-  s2[2] = Serial3.parseInt();
   Serial.print(s2[2]);
   Serial.print("  ");
-  s2[3] = Serial3.parseInt();
   Serial.print(s2[3]);
   Serial.print("  ");
-  s2[4] = Serial3.parseInt();
   Serial.print(s2[4]);
   Serial.print("  ");
-  s2[5] = Serial3.parseInt();
   Serial.print(s2[5]);
-  Serial.println("  ");
+  Serial.println("  ");*/
+
+  //Since we are using the g/r ratio to detect green, r cannot be equal to zero. if r == 0, set it to 1
+  if(s1[5] == 0)
+  {
+    s1[5] = 1;
+  }
+
+  if(s2[5] == 0)
+  {
+    s2[5] = 1;
+  }
+
+  
 }
 
 
@@ -140,7 +157,8 @@ int get_color()//checks for green based on color vals
  
   bool rcolor = 0;
   bool lcolor = 0;
-  
+
+   
   if (s1[2]/s1[5] >= green_check)
   {
     //Serial.println("right green");
@@ -164,21 +182,43 @@ void greensq()//checks for green and moves accordingly
   switch (get_color())
   {
     case 3:
-      Serial.println("3");
-      //enc_turn(180, 100);
+      Serial.println("check 3");
+      green_count++;
+      if(green_count > 5)
+      {
+        enc_turn(180, 100);
+        Serial.print("GREEN 3");
+        green_count = 0;
+      }
       break;
+      
     case 2:
-      Serial.println("2");
-      //forwardCm(1.5, 70);
-      //enc_turn(90, 100);
+      Serial.println("check 2");
+      green_count++;
+      if(green_count > 5)
+      {
+        //forwardCm(1.5, 70);
+        enc_turn(90, 100);
+        Serial.print("GREEN 2");
+        green_count = 0;
+      }
       break;
+
     case 1:
-      Serial.println("1");
-      //forwardCm(1.5, 70);
-      //enc_turn(-90, 100);
+      Serial.println("check 1");
+      green_count++;
+      if(green_count > 5)
+      {
+        //forwardCm(1.5, 70);
+        enc_turn(-90, 100);
+        Serial.print("GREEN 1");
+        green_count = 0;
+      }
       break;
+      
     default:
       Serial.println("0");
+      green_count = 0;
       break;
   }
 
