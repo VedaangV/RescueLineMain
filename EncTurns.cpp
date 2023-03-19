@@ -13,14 +13,14 @@ float getYaw()//get rotation of BNO
 }
 float getPitch()//get tilt (pitch) of BNO
 {
-   sensors_event_t orientationData;
+  sensors_event_t orientationData;
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   return orientationData.orientation.y;
 }
 
 void enc_turn(int deg, int speed)//turns a specific amount of degrees
 {
- 
+
   int target = 0;
   motorsStop();
   yaw = getYaw();
@@ -28,7 +28,7 @@ void enc_turn(int deg, int speed)//turns a specific amount of degrees
 
   if (target < 0)
   {
-    target+= 360;
+    target += 360;
   }
 
   else if (target > 360)
@@ -37,7 +37,7 @@ void enc_turn(int deg, int speed)//turns a specific amount of degrees
   }
   Serial.print("Degree: ");
   Serial.println(deg);
- 
+
   Serial.print("target: ");
   Serial.println(target);
   int calc_speed = ((deg * -1) * speed) / abs(deg);
@@ -47,12 +47,12 @@ void enc_turn(int deg, int speed)//turns a specific amount of degrees
   Serial.println(-calc_speed);
 
   while ((yaw > target + 2) || (yaw < target - 2))
-    {
-      Serial.println(yaw);
-      setMultipleMotors(-calc_speed,calc_speed);
-      yaw = getYaw();
-    }
-   
+  {
+    Serial.println(yaw);
+    setMultipleMotors(-calc_speed, calc_speed);
+    yaw = getYaw();
+  }
+
   motorsStop();
 }
 void bnoSetup()
