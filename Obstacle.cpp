@@ -1,14 +1,12 @@
 //code for obstacle avoidance.
 #include "Header.h"
-long duration, inches, cm;
 volatile long pulseMsSt = 0;
 volatile long pulseMsEd = 0;
 volatile bool pulseFirst = 1;
-const int pingPin = 39;
 
 void distanceISR()
 {
-  
+
   if (pulseFirst)
   {
     pulseMsSt = micros();
@@ -23,7 +21,7 @@ void distanceISR()
 
 float getFrontDistance()//get distance of Front US
 {
-    digitalWrite(5, LOW);
+  digitalWrite(5, LOW);
   delay(1);
   digitalWrite(5, HIGH);
   delay(1);
@@ -56,12 +54,12 @@ void avoid(int sign) { //move around obstacle
   enc_turn(90 * sign, 70);
 }
 void obstacle() { //main obstacle function
-    enc_turn(90, 70);
-    if (seeObs(10.0)) { //sees wall
-      enc_turn(180, 70);
-      avoid(-1);
-    }
-    else {
-      avoid(1);
-    }
+  enc_turn(90, 70);
+  if (seeObs(10.0)) { //sees wall
+    enc_turn(180, 70);
+    avoid(-1);
+  }
+  else {
+    avoid(1);
+  }
 }
