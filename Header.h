@@ -3,7 +3,7 @@
 #pragma once
 //libraries, global vars, and essential functions in here:
 #define main_bot 1
-#define back_up_bot 1
+//#define back_up_bot 1
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
@@ -45,6 +45,7 @@ float getPitch();
 int get_color(float green_check);
 void get_vals();
 void greensq();
+void greensqturn(int turn_target);
 void motorsStop();
 void rightMotorRun(int motorSpeed);
 void leftMotorRun(int motorSpeed);
