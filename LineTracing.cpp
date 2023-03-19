@@ -2,8 +2,8 @@
 
 #include "Header.h"
 #define CALIBRATION_ITERATIONS 100
-#define BLACK_THRESH 1500
-#define WHITE_THRESH 500
+#define BLACK_THRESH 1500//greater than means it's black
+#define WHITE_THRESH 800 //less than means it's white
 const int sensorCount = 8;//# of qtr array sensors
 int bw_vals[sensorCount]; //array for qtr vals
 float integral = 0.0; float derivative = 0.0; float last_error = 0.0;
@@ -189,11 +189,6 @@ void lineTrace() {//main line tracking function
 
   int base_speed = 55 + getPitch();//base speed for Line Tracing
   //Serial.println(base_speed);
-
-
-
-
-
   float error = error_calc();//calculating error
   integral += error;//summing up all errors during runtime
   derivative = error - last_error;//checking the change in the errors over time.
