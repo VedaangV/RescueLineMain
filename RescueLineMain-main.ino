@@ -9,11 +9,11 @@ void setup() {
   Wire.begin();
   attachInterrupt(digitalPinToInterrupt(18), Interruptfunc, RISING);
   delay(100);
-  
+
   Serial2.begin(115200);
   Serial2.println("ATINTTIME=1");
-  Serial2.println("ATTCSM=1");  
-  while(Serial2.available()==0)
+  Serial2.println("ATTCSM=1");
+  while (Serial2.available() == 0)
   {
     Serial.println("Serial 2 not available");
   }
@@ -22,9 +22,9 @@ void setup() {
 
   Serial3.begin(115200);
   Serial3.println("ATINTTIME=1");
-  Serial3.println("ATTCSM=1");  
+  Serial3.println("ATTCSM=1");
 
-  while(Serial3.available()== 0)
+  while (Serial3.available() == 0)
   {
     Serial.println("Serial 3 not available");
   }
@@ -40,5 +40,6 @@ void setup() {
 void loop() {
   lineTrace();
   greensq();
-  //enc_turn(90,150);
+  obstacle();
+
 }
