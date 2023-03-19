@@ -2,13 +2,15 @@
 #define HEADER_H
 #pragma once
 //libraries, global vars, and essential functions in here:
+#define main_bot 1
+//#define back_up_bot 1
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
 #include <Adafruit_Sensor.h>
 #define TCAADDR 0x70
 
-
+extern int bw_vals[8];
 //all func declarations.
 
 void setMultipleMotors(int left, int right);
@@ -38,10 +40,8 @@ void tcaselect(uint8_t i);
 int check_tCase();
 int check_all();
 void enc_turn(int deg, int speed);
-int enc_turn_line(int deg, int speed);
-void enc_turn2(int deg, int speed);
 float getYaw();
-void get_ok();
+float getPitch();
 int get_color(float green_check);
 void get_vals();
 void greensq();
@@ -49,9 +49,9 @@ void motorsStop();
 void rightMotorRun(int motorSpeed);
 void leftMotorRun(int motorSpeed);
 void bnoSetup();
-void tcaselect(uint8_t i);
-int getCase();
 float qtr_average(int start, int finish);
 void get_ok2();
 void get_ok3();
+int check_left();
+int check_right();
 #endif
