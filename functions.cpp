@@ -9,23 +9,25 @@ float cm_to_encoders(float cm) {
 
 void Interruptfunc() {//interrupt func for encoders
   if (digitalRead(31) == HIGH) {
-    enc--;
+    enc++;
   }
   else {
-    enc++;
+    enc--;
   }
 }
 
 void forward_enc(int encoders, int motor_speed) {//go forward for enc
-  enc = 0;
-  while (enc <= encoders) {
+  int previousEnc = enc;
+  while (enc <=  previousEnc + encoders) {
+    Serial.println(enc);
     setMultipleMotors(motor_speed, motor_speed);
   }
   setMultipleMotors(0, 0);
 }
 void backward_enc(int encoders, int motor_speed) {//go backward for enc
-  enc = 0;
-  while (enc >= -1 * encoders) {
+  int previousEnc = enc;
+  
+  while (enc >=  previousEnc - encoders) {
     setMultipleMotors(-motor_speed, -motor_speed);
   }
   setMultipleMotors(0, 0);
