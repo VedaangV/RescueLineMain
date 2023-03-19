@@ -113,7 +113,7 @@ int check_all() {//check all sensors to see if they have the same relative value
   return result;
 }
 void lineTrace() {//main line tracking function
-  const int base_speed = 65;//base speed for Line Tracing
+  int base_speed = 55 + getPitch();//base speed for Line Tracing
   const float kp = 0.05;//error multiplier
   const float ki = 0.00000;//integral multiplier
   const float kd = 0.0; //kd multiplier
