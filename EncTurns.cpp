@@ -1,31 +1,9 @@
-#include "Megapi_Functions.h"
-#include <Adafruit_TCS34725.h>
-#include <Wire.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
-
+#include "Header.h"
 uint16_t BNO055_SAMPLERATE_DELAY_MS = 100;
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
-static float yaw = 0.0;
-
+float yaw = 0;
 const int m1_forward = -75;
 const int m2_forward = 75;
-//****************************************************************************************************************\\
-
-
-void setup()
-{
-  Wire.begin();
-  Serial.begin(9600);
-  if (!bno.begin(8))
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while (1);
-  }
-
-}
-//****************************************************************************************************************\\
 
 float getYaw()
 {
@@ -36,6 +14,7 @@ float getYaw()
 
 void enc_turn(int deg, int speed)
 {
+  
   int target = 0;
   motorsStop();
   yaw = getYaw();
@@ -61,19 +40,21 @@ void enc_turn(int deg, int speed)
   Serial.print("LEFT MOTOR: ");
   Serial.println(-calc_speed);
 
-  while (yaw > target + 2 || yaw < target - 2)
+  while ((yaw > target + 2) || (yaw < target - 2))
     {
       Serial.println(yaw);
-      rightMotorRun(calc_speed);
-      leftMotorRun(-calc_speed);
+      setMultipleMotors(-calc_speed,calc_speed);
       yaw = getYaw();
     }
     
   motorsStop();
 }
-
-void loop()
+void bnoSetup()
 {
-  enc_turn(45, 150);
-  delay(500);
+  if (!bno.begin(8))
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    while (1);
+  }
 }
