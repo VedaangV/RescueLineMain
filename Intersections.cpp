@@ -128,8 +128,8 @@ void get_vals()
   
   lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
 
-  //Serial.print("Sum Left: ");
-  //Serial.println(lsum);
+  Serial.print("Sum Left: ");
+  Serial.println(lsum);
 
 
 }
@@ -175,7 +175,7 @@ int get_color()//checks for green based on color vals
     rcolor = 1;
   }
 
-  if (lsensor[G] / lsensor[R] >= green_check && seeGradient(lsum) && !falseGreen()) //is left sensor seeing green?
+  if (lsensor[G] / lsensor[R] >= green_check && seeGradient(lsum)&& !falseGreen()) //is left sensor seeing green?
   {
     lcolor = 1;
   }
