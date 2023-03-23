@@ -1,23 +1,17 @@
+#ifndef HEADER_H
+#define HEADER_H
 #pragma once
 //libraries, global vars, and essential functions in here:
 #include <Adafruit_BNO055.h>
-#define BNO055_SAMPLERATE_DELAY_MS (10)
-Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
-imu::Vector<3> rot;
 #include <QTRSensors.h>//for qtr
-#include "MeMegaPi.h"//for megaPi
-QTRSensors qtr;
-MeMegaPiDCMotor lmotor(PORT1B);//left motor
-MeMegaPiDCMotor rmotor(PORT2B);//right motor
-int sensorCount = 8;//# of qtr array sensors
-float bw_vals[sensorCount]; //array for qtr vals
-float integral = 0.0;
-float derivative = 0.0
-float last_error = 0.0;
-//
+#include <utility/imumaths.h>
+#include <Adafruit_Sensor.h>
+#define TCAADDR 0x70
+
+extern int bw_vals[8];
 //all func declarations.
-void get_color();
-void greensq();
+
+void setMultipleMotors(int left, int right);
 void go_motors(int motorSpeed);
 void rturn(int motorSpeed);
 void lturn(int motorSpeed);
@@ -26,6 +20,40 @@ float error_calc();
 void qtr_print();
 void pid_print();
 void lineTrace();
-
-
-
+void diff_print();
+float cm_to_encoders(float cm);
+void Interruptfunc();
+void forward_enc(int enc, int motor_speed);
+void forwardCm(float dist, int motor_speed);
+void backward_enc(int enc, int motor_speed);
+void backwardCm(float dist, int motor_speed);
+bool seeObs(long dist);
+long getCm();
+long getInch();
+long microToCm(long microseconds);
+long microToInch(long microseconds);
+void avoid(int sign);
+void obstacle();
+void tcaselect(uint8_t i);
+int check_tCase();
+int check_all();
+void enc_turn(int deg, int speed);
+int enc_turn_line(int deg, int speed);
+void enc_turn2(int deg, int speed);
+float getYaw();
+void get_ok();
+int get_color(float green_check);
+void get_vals();
+void greensq();
+void motorsStop();
+void rightMotorRun(int motorSpeed);
+void leftMotorRun(int motorSpeed);
+void bnoSetup();
+void tcaselect(uint8_t i);
+int getCase();
+float qtr_average(int start, int finish);
+void get_ok2();
+void get_ok3();
+int check_left();
+int check_right();
+#endif
