@@ -18,6 +18,7 @@ float lsensor[6];
 
 
 const float green_check = 11;
+//flabbergasted
 
 const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int silver = 4;
 
