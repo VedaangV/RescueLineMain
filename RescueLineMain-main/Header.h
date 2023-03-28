@@ -56,5 +56,4 @@ void get_ok2();
 void get_ok3();
 int check_left();
 int check_right();
-int absoluteTurn(int n);
 #endif
