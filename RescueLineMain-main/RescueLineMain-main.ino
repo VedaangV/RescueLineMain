@@ -38,7 +38,9 @@ void setup() {
   pinMode(A11, OUTPUT); //red
 }
 void loop() {
-  
+  lineTrace();
+  greensq();
+  obstacle();
   
 
 }
