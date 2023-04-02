@@ -187,10 +187,12 @@ int check_right() {//check all sensors to see if they have the same relative val
 }
 void tCase()//case for t-intersection (|-)
 {
+  #define leftBlack() (bw_vals[7] > BLACK_THRESH && bw_vals[6] > BLACK_THRESH && bw_vals[5] > BLACK_THRESH && bw_vals[4] > BLACK_THRESH)
+  #define rightBlack() (bw_vals[0] > BLACK_THRESH && bw_vals[1] > BLACK_THRESH && bw_vals[2] > BLACK_THRESH && bw_vals[3] > BLACK_THRESH)
   const int turnDelay = 225;
   bool seeBlack = false;
   qtr.read(bw_vals);
-  if ((bw_vals[7] > BLACK_THRESH && bw_vals[6] > BLACK_THRESH && bw_vals[5] > BLACK_THRESH && bw_vals[4] > BLACK_THRESH) || (bw_vals[0] > BLACK_THRESH && bw_vals[1] > BLACK_THRESH && bw_vals[2] > BLACK_THRESH && bw_vals[3] > BLACK_THRESH)) // if sees black on either edge
+  if (leftBlack() || rightBlack()) // if sees black on either edge
   {
     //^^checks for tCase
     float previousTime = millis();
