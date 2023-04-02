@@ -19,7 +19,8 @@ const float kp = 0.025;//error multiplier
 const float ki = 0.000001;//integral multiplier
 const float kd = 0.04; //kd multiplier
 #endif
-
+#define leftBlack() (bw_vals[7] > BLACK_THRESH && bw_vals[6] > BLACK_THRESH && bw_vals[5] > BLACK_THRESH && bw_vals[4] > BLACK_THRESH)
+#define rightBlack() (bw_vals[0] > BLACK_THRESH && bw_vals[1] > BLACK_THRESH && bw_vals[2] > BLACK_THRESH && bw_vals[3] > BLACK_THRESH)
 QTRSensors qtr;
 
 
@@ -187,8 +188,7 @@ int check_right() {//check all sensors to see if they have the same relative val
 }
 void tCase()//case for t-intersection (|-)
 {
-  #define leftBlack() (bw_vals[7] > BLACK_THRESH && bw_vals[6] > BLACK_THRESH && bw_vals[5] > BLACK_THRESH && bw_vals[4] > BLACK_THRESH)
-  #define rightBlack() (bw_vals[0] > BLACK_THRESH && bw_vals[1] > BLACK_THRESH && bw_vals[2] > BLACK_THRESH && bw_vals[3] > BLACK_THRESH)
+
   const int turnDelay = 225;
   bool seeBlack = false;
   qtr.read(bw_vals);
@@ -197,7 +197,7 @@ void tCase()//case for t-intersection (|-)
     //^^checks for tCase
     float previousTime = millis();
 
-    if (bw_vals[7] > BLACK_THRESH) {//if t_case on left side
+    if (leftBlack()) {//if t_case on left side
       while (millis() < previousTime + turnDelay) {//turn for turndelay ms
         lturn(70);//turning towards t-case line
         qtr.read(bw_vals);
