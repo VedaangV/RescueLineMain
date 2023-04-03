@@ -219,7 +219,7 @@ void tCase()//case for t-intersection (|-)
         delay(2000);
       }
       else{
-        enc_turn(-1 * (90 - turnDeg), 80);
+        enc_turn(-1 * (90 - turnDeg), 80);//if 90, turn 90
       }
     }
     else {//if t_case on right side
@@ -229,7 +229,7 @@ void tCase()//case for t-intersection (|-)
       forwardCm(2.0, 80);
      }
      else{
-      enc_turn(90 - turnDeg, 80);
+      enc_turn(90 - turnDeg, 80);//if 90, turn 90
      }
     }
   }

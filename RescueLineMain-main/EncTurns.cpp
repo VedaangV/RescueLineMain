@@ -100,14 +100,6 @@ bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
   motorsStop();
   return seeBlack;
 }
-int absoluteTurn(int n) {//turns to the actual position of n degrees (not n degrees more)
-  getYaw();
-
-  int dir = int(rot.x());
-  dir = ((((dir + 45) / 90) + n) % 4);
-
-  enc_turn((dir) * 90, 70);
-}
 
 void bnoSetup()
 {

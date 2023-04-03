@@ -33,11 +33,9 @@ void setup() {
   delay(2000);
 
   //led pins
-  #ifdef main_bot
   pinMode(A9, OUTPUT); //blue
   pinMode(A10, OUTPUT); //green
   pinMode(A11, OUTPUT); //red
-  #endif
   
   Serial2.println("ATDATA"); //command to request data
   get_ok2();
@@ -47,6 +45,12 @@ void setup() {
 
 }
 void loop() {
-lineTrace();
+  lineTrace();
+  greensq();
+   
+  Serial2.println("ATDATA"); //command to request data
+  get_ok2();
 
+  Serial3.println("ATDATA"); //command to request data
+  get_ok3();
 }

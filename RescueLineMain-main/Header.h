@@ -59,6 +59,4 @@ void get_ok3();
 int check_left();
 int check_right();
 bool enc_turn(int deg, int speed, int tCase);
-int absoluteTurn(int n);
-void turn_to (int direction);
 #endif
