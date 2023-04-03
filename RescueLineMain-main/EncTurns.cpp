@@ -51,12 +51,54 @@ void enc_turn(int deg, int speed)//turns a specific amount of degrees
 
   while ((yaw > target + 2) || (yaw < target - 2))
   {
-    Serial.println(yaw);
+    //Serial.println(yaw);
     setMultipleMotors(-calc_speed, calc_speed);
     yaw = getYaw();
   }
 
   motorsStop();
+}
+bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
+{
+  bool seeBlack = 0;
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
+  target = yaw + deg;
+
+  if (target < 0)
+  {
+    target += 360;
+  }
+
+  else if (target > 360)
+  {
+    target -= 360;
+  }
+  Serial.print("Degree: ");
+  Serial.println(deg);
+
+  Serial.print("target: ");
+  Serial.println(target);
+  int calc_speed = ((deg * -1) * speed) / abs(deg);
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
+  Serial.println(calc_speed);
+  Serial.print("LEFT MOTOR: ");
+  Serial.println(-calc_speed);
+
+  while ((yaw > target + 2) || (yaw < target - 2))
+  {
+    //Serial.println(yaw);
+    setMultipleMotors(-calc_speed, calc_speed);
+    qtr.read(bw_vals);
+    if(bw_vals[tCase] > BLACK_THRESH){
+      seeBlack = true;
+    }
+    yaw = getYaw();
+  }
+
+  motorsStop();
+  return seeBlack;
 }
 int absoluteTurn(int n) {//turns to the actual position of n degrees (not n degrees more)
   getYaw();

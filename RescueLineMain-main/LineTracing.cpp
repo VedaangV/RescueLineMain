@@ -2,8 +2,7 @@
 
 #include "Header.h"
 #define CALIBRATION_ITERATIONS 100
-#define BLACK_THRESH 1500//greater than means it's black
-#define WHITE_THRESH 800 //less than means it's white
+
 const int sensorCount = 8;//# of qtr array sensors
 int bw_vals[sensorCount]; //array for qtr vals
 float integral = 0.0; float derivative = 0.0; float last_error = 0.0;
@@ -13,14 +12,23 @@ int count = 0;
 const float kp = 0.035;
 const float ki = 0.0000002;
 const float kd = 0.000;
-
+//sensor order for qtr is different on each bot.
+//MAIN BOT: sensor order acsends right to left (0 is right most, 7 is left most)
+//BACK_UP BOT: sensor order ascends from left to right (0 is left most, 7 is right most);
+#define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
+#define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
+int leftSensor = 7;
+int rightSensor = 0;
 #else
-const float kp = 0.025;//error multiplier
-const float ki = 0.000001;//integral multiplier
-const float kd = 0.04; //kd multiplier
+const float kp = 0.01;//error multiplier
+const float ki = 0.000000;//integral multiplier
+const float kd = 0.00; //kd multiplier
+#define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
+#define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
+int leftSensor = 0;
+int rightSensor = 7;
 #endif
-#define leftBlack() (bw_vals[7] > BLACK_THRESH && bw_vals[6] > BLACK_THRESH && bw_vals[5] > BLACK_THRESH && bw_vals[4] > BLACK_THRESH)
-#define rightBlack() (bw_vals[0] > BLACK_THRESH && bw_vals[1] > BLACK_THRESH && bw_vals[2] > BLACK_THRESH && bw_vals[3] > BLACK_THRESH)
+
 QTRSensors qtr;
 
 
@@ -55,7 +63,7 @@ float error_calc() {
   float target_vals[] = {108, 0, 324, 296}; //3/19-storming. 8/*FINAL ROBOT*/
   float multipliers[] = {1.9, 1.6, 1.2, 1.0};
 #else
-  float target_vals[] = {380, 168, 223, 168}; //3/4-home.
+  float target_vals[] = {420, 220, 264, 204}; //4/2-home.
   float multipliers[] = {6.5, 4.33, 2.67, 1.00};//multipliers for each sensor pair (outer to inner). Outer pairs will have higher multipliers since varying values in them would indicate more extreme cases.
 #endif
 
@@ -73,9 +81,9 @@ float error_calc() {
 void qtr_print() {
   //print the qtr values in sensor order
 
-  qtr.read(bw_vals);
   Serial.print("\n");
   for (int i = 0; i < sensorCount; i++) {
+    qtr.read(bw_vals);
     Serial.print("Sensor ");
     Serial.print(i);
     Serial.print(": ");
@@ -90,8 +98,9 @@ void pid_print() {
 
 }
 void diff_print() {//print the diff between sensor pairs.
-  qtr.read(bw_vals);
+  
   for (int i = 0; i < sensorCount / 2; i++) {
+    qtr.read(bw_vals);
     Serial.print("Pair ");
     Serial.print(i);
     Serial.print(": ");
@@ -135,7 +144,7 @@ int check_left() {//check all sensors to see if they have the same relative valu
   int result = different;
   bool case_flag = false;
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 4; i < 8; i++) {
     if (bw_vals[i] < WHITE_THRESH && result == black) { //if see white when previously see black
       result = different;//different vals
       case_flag = true;
@@ -164,7 +173,7 @@ int check_right() {//check all sensors to see if they have the same relative val
   int result = different;
   bool case_flag = false;
 
-  for (int i = 4; i < 8; i++) {
+  for (int i = 0; i < 4 ; i++) {
     if (bw_vals[i] < WHITE_THRESH && result == black) { //if see white when previously see black
       result = different;//different vals
       case_flag = true;
@@ -188,52 +197,47 @@ int check_right() {//check all sensors to see if they have the same relative val
 }
 void tCase()//case for t-intersection (|-)
 {
-
-  const int turnDelay = 225;
+  //set led to red
+  #ifdef main_bot
+  digitalWrite(A11, HIGH);
+  digitalWrite(A10, LOW);
+  digitalWrite(A9, LOW);
+  #endif
+  
+  const int turnDeg = 30;
   bool seeBlack = false;
   qtr.read(bw_vals);
-  if (leftBlack() || rightBlack()) // if sees black on either edge
+  if (leftBlack() >= 4 || rightBlack() >= 4) // if sees black on either edge
   {
-    //^^checks for tCase
-    float previousTime = millis();
 
-    if (leftBlack()) {//if t_case on left side
-      while (millis() < previousTime + turnDelay) {//turn for turndelay ms
-        lturn(70);//turning towards t-case line
-        qtr.read(bw_vals);
-        if (bw_vals[0] > BLACK_THRESH) {
-          seeBlack = true;//if sees black on opposite sensor during any point of the turn
-        }
+    if (leftBlack() >= 4) {//if t_case on left side
+      forwardCm(4.0, 80);//go forward 
+      if(enc_turn(-1 * turnDeg, 80, rightSensor)){//turn towards the line branching off and check if the opposite side sensor ever sees black (meaning there is a line ahead.
+        //if there is a line ahead (robot should go forward, its a t-case not 90)
+        enc_turn(turnDeg, 80);//turn back to straight position
+        forwardCm(2.0, 80);//forward 2cm
+        delay(2000);
       }
-      if (seeBlack) { //if saw black (meaning it is a false line)
-        rturn(70);//turn back
-        delay(turnDelay);
+      else{
+        enc_turn(-1 * (90 - turnDeg), 80);
       }
-      motorsStop();
     }
     else {//if t_case on right side
-      while (millis() < previousTime + turnDelay) {//turn of turnDelay ms
-        rturn(70);//turn towards t-case line
-        qtr.read(bw_vals);
-        if (bw_vals[7] > BLACK_THRESH) {
-          seeBlack = true;//if see black
-        }
-      }
-      if (seeBlack) {
-        lturn(70);//turn back
-        delay(turnDelay);
-      }
+      forwardCm(4.0, 80);
+     if(enc_turn(turnDeg, 80, leftSensor)){
+      enc_turn(-1 * turnDeg, 80);
+      forwardCm(2.0, 80);
+     }
+     else{
+      enc_turn(90 - turnDeg, 80);
+     }
     }
-    if (seeBlack) {
-      go_motors(70);//go forward if it is a falseline
-      delay(turnDelay);
-    }
-
   }
+  
 }
 void lineTrace() {//main line tracking function
 
-  int base_speed = 50 + getPitch();//base speed for Line Tracing
+  int base_speed = 55 + getPitch();//base speed for Line Tracing
   tCase();
   float error = error_calc();//calculating error
   integral += error;//summing up all erors during runtime
@@ -247,9 +251,11 @@ void lineTrace() {//main line tracking function
 #endif
 
   last_error = error;
+  #ifdef main_bot
   digitalWrite(A10, LOW);
   digitalWrite(A9, HIGH);
   digitalWrite(A11, LOW);
+  #endif
 
 
 }

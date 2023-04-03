@@ -19,9 +19,10 @@ float lsensor[6];
 
 const float green_check = 11;
 
-const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int silver = 4;
+const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1;
 
 enum colors {V = 0, B = 1, G = 2, Y = 3, O = 4, R = 5};
+enum colorCases {green = 1, silver = 4};
 
 int green_count = 0; int silver_count = 0;
 int rsum = 0;
@@ -53,13 +54,11 @@ void get_ok3() //searches on serial 3
 
 }
 
-//****************************************************************************************************************\\
-
 void get_vals()
-{
-  Serial2.println("ATDATA"); //command to request data
+{  Serial2.println("ATDATA"); //command to request data
   get_ok2();
 
+  
   rsensor[V] = Serial2.parseInt(); //will return as zero because sensor is on bank mode 1
   rsensor[B] = Serial2.parseInt(); //will return as zero because sensor is on bank more 1
   rsensor[G] = Serial2.parseInt();
@@ -94,10 +93,10 @@ void get_vals()
 
   //---------------------------------------------------------------------------\\
 
+
+
   Serial3.println("ATDATA"); //command to request data
   get_ok3();
-
-
   lsensor[V] = Serial3.parseInt(); //will return as zero because sensor is on bank mode 1
   lsensor[B] = Serial3.parseInt(); //will return as zero because sensor is on bank mode 2
   lsensor[G] = Serial3.parseInt();
@@ -187,17 +186,17 @@ int get_color()//checks for green based on color vals
 
   if (rsensor[G] / rsensor[R] >= green_check && seeGradient(rsum)) //is right sensor seeing green?
   {
-    rcolor = 1;
+    rcolor = green;
   }
 
   if (lsensor[G] / lsensor[R] >= green_check && seeGradient(lsum)) //is left sensor seeing green?
   {
-    lcolor = 1;
+    lcolor = green;
   }
 
   if (seeSilver) //checks for silver
   {
-    return (4);
+    return (silver);
   }
 
   return ((rcolor << 1) + lcolor); //creates binary number: 11=double green, 10=right green, 01=left green, 00=no green
@@ -207,17 +206,21 @@ int get_color()//checks for green based on color vals
 void greensq()//checks for green and moves accordingly
 {
   //setting indicator LED to green color
+  #ifdef main_bot
   digitalWrite(A10, HIGH);
   digitalWrite(A9, LOW);
   digitalWrite(A11, LOW);
+  #endif
 
 
   switch (get_color())
   {
     case doubleGreen:
+    #ifdef main_bot
       digitalWrite(A10, LOW);
       digitalWrite(A9, LOW);
       digitalWrite(A11, HIGH);
+      #endif
       //Serial.println("check doubleGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
@@ -237,7 +240,7 @@ void greensq()//checks for green and moves accordingly
       if (!falseGreen() && greenCounter())
       {
         nudge();
-        if (get_color() == 2) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        if (get_color() == rightGreen) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
         {
           // Serial.println("RIGHT GREEN");
           greensqturn(90);
@@ -260,7 +263,7 @@ void greensq()//checks for green and moves accordingly
       if (!falseGreen() && greenCounter())
       {
         nudge();
-        if (get_color() == 1) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        if (get_color() == leftGreen) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
         {
           //Serial.println("LEFT GREEN");
           greensqturn(-90);

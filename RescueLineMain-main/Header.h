@@ -2,14 +2,16 @@
 #define HEADER_H
 #pragma once
 //libraries, global vars, and essential functions in here:
-#define main_bot 1
-//#define back_up_bot 1
+//#define main_bot 1
+#define back_up_bot 1
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
 #include <Adafruit_Sensor.h>
 #define TCAADDR 0x70
-
+extern QTRSensors qtr;
+#define BLACK_THRESH 1700//greater than means it's black
+#define WHITE_THRESH 700 //less than means it's white
 
 extern int bw_vals[8];
 //all func declarations.
@@ -56,4 +58,7 @@ void get_ok2();
 void get_ok3();
 int check_left();
 int check_right();
+bool enc_turn(int deg, int speed, int tCase);
+int absoluteTurn(int n);
+void turn_to (int direction);
 #endif
