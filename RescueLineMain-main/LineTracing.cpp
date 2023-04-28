@@ -22,7 +22,7 @@ int leftSensor = 7;
 int rightSensor = 0;
 
 #else
-const float kp = 0.0625;//error multiplier
+const float kp = 0.07;//error multiplier
 const float ki = 0.000000;//integral multiplier
 const float kd = 0.00; //kd multiplier
 
@@ -203,10 +203,6 @@ int check_right() {//check all sensors to see if they have the same relative val
 void tCase()//case for t-intersection: |--
 {
   qtr.read(bw_vals);
-  Serial.print("Left Black: ");
-  Serial.println(leftBlack());
-  Serial.print("Right Black: ");
-  Serial.println(rightBlack());
   if ((leftBlack() >= 4) != (rightBlack() >= 4)) // if sees black on either edge, not both
   {
     int turn = ((leftBlack() >= 4) * -90) + ((rightBlack() >= 4) * 90);//turn is -90 for left, 90 for right
@@ -225,22 +221,36 @@ void tCase()//case for t-intersection: |--
 
 }
 void lineTrace() {//main line tracking function
-
-  int base_speed = 60  + getPitch();//base speed for Line Tracing
-  //tCase();
+  float maxSpeed = 220.0;
+  int base_speed = 65  + getPitch();//base speed for Line Tracing
+  tCase();
 
   float error = error_calc();//calculating error
   integral += error;//summing up all erors during runtime
   derivative = error - last_error;//checking the change in the errors over time.
   float adjustSpeed = (error * kp) + (integral * ki) + (derivative * kd);//final number that calculates how much to adjust the motors.
-  Serial.println("adjustSpeed: ");
-  Serial.println(adjustSpeed);
 #ifdef main_bot
-  setMultipleMotors(base_speed + adjustSpeed, base_speed - adjustSpeed);
-#else
-  setMultipleMotors(base_speed - adjustSpeed, base_speed + adjustSpeed);
-#endif
+  float leftSpeed = base_speed + adjustSpeed;
+  float rightSpeed = base_speed - adjustSpeed;
 
+
+#else
+  float leftSpeed = base_speed - adjustSpeed;
+  float rightSpeed = base_speed + adjustSpeed;
+#endif
+  if (leftSpeed < -maxSpeed) {
+    leftSpeed = -maxSpeed;
+  }
+  if (leftSpeed > maxSpeed) {
+    leftSpeed = maxSpeed;
+  }
+  if (rightSpeed < -maxSpeed) {
+    rightSpeed = -maxSpeed;
+  }
+  if (rightSpeed > maxSpeed) {
+    rightSpeed = maxSpeed;
+  }
+  setMultipleMotors(leftSpeed, rightSpeed);
   last_error = error;
 #ifdef main_bot
   //set LED to blue for debugging

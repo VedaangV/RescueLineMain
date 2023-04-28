@@ -120,7 +120,9 @@ void motorsStop() { //stop all motors
   setMultipleMotors(0, 0);
 }
 void set_LED(led_colors color){//set led to red, green, or blue
-  digitalWrite(redPin, HIGH * (color == red));//set red high if color is red
-  digitalWrite(greenPin, HIGH * (color == green));//set green high if color is green
-  digitalWrite(bluePin, HIGH * (color == blue));//set blue high if color is blue
+  #ifdef main_bot
+  digitalWrite(redPin, HIGH & (color == red));//set red high if color is red
+  digitalWrite(greenPin, HIGH & (color == green));//set green high if color is green
+  digitalWrite(bluePin, HIGH & (color == blue));//set blue high if color is blue
+  #endif
 }

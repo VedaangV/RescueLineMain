@@ -17,8 +17,8 @@ extern QTRSensors qtr;
 
 #else
 
-#define BLACK_THRESH 1408
-#define WHITE_THRESH 968
+#define BLACK_THRESH 1700
+#define WHITE_THRESH 1000
 
 #endif
 extern int x;

@@ -21,9 +21,8 @@ void setup() {
 
 }
 void loop() {
-  //Serial2.println(serialReq);
-  //Serial3.println(serialReq);
+  Serial2.println(serialReq);
+  Serial3.println(serialReq);
   lineTrace();
   greensq();
-  obstacle();
 }
