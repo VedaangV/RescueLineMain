@@ -6,14 +6,13 @@
 const int sensorCount = 8;//# of qtr array sensors
 int bw_vals[sensorCount]; //array for qtr vals
 float integral = 0.0; float derivative = 0.0; float last_error = 0.0;
-enum qtr_check {different, white, black};
 int count = 0;
+
 #ifdef main_bot
 const float kp = 0.035;
-//const float ki = 0.0000002;
-const float ki = 0;
-//const float kd = 0.0001;
-const float kd = 0;
+const float ki = 0.0000002;
+const float kd = 0.0001;
+
 //sensor order for qtr is different on each bot.
 //MAIN BOT: sensor order acsends right to left (0 is right most, 7 is left most)
 //BACK_UP BOT: sensor order ascends from left to right (0 is left most, 7 is right most);
@@ -21,10 +20,12 @@ const float kd = 0;
 #define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 int leftSensor = 7;
 int rightSensor = 0;
+
 #else
 const float kp = 0.0625;//error multiplier
 const float ki = 0.000000;//integral multiplier
 const float kd = 0.00; //kd multiplier
+
 #define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
 #define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 int leftSensor = 0;
@@ -100,7 +101,7 @@ void pid_print() {
 
 }
 void diff_print() {//print the diff between sensor pairs.
-  
+
   for (int i = 0; i < sensorCount / 2; i++) {
     qtr.read(bw_vals);
     Serial.print("Pair ");
@@ -197,86 +198,31 @@ int check_right() {//check all sensors to see if they have the same relative val
   }
   return result;
 }
-/*void tCase()//case for t-intersection (|-)
-{
-  //set led to red
-  #ifdef main_bot
-  digitalWrite(A11, HIGH);
-  digitalWrite(A10, LOW);
-  digitalWrite(A9, LOW);
-  #endif
-  
-  const int turnDeg = 30;
-  qtr.read(bw_vals);
-  if (leftBlack() >= 4 || rightBlack() >= 4) // if sees black on either edge
-  {
 
-    if (leftBlack() >= 4) {//if t_case on left side
-      forwardCm(4.0, 80);//go forward 
-      if(enc_turn(-1 * turnDeg, 80, rightSensor)){//turn towards the line branching off and check if the opposite side sensor ever sees black (meaning there is a line ahead.
-        //if there is a line ahead (robot should go forward, its a t-case not 90)
-        enc_turn(turnDeg, 80);//turn back to straight position
-        forwardCm(2.0, 80);//forward 2cm
-        delay(2000);
-      }
-      else{
-        enc_turn(-1 * (90 - turnDeg), 80);//if 90, turn 90
-        while(leftBlack() == 0 && rightBlack() == 0){
-          qtr.read(bw_vals);
-          go_motors(-70);
-        }
-        motorsStop();
-      }
-    }
-    else {//if t_case on right side
-      forwardCm(4.0, 80);
-     if(enc_turn(turnDeg, 80, leftSensor)){
-      enc_turn(-1 * turnDeg, 80);
-      forwardCm(2.0, 80);
-     }
-     else{
-      enc_turn(90 - turnDeg, 80);//if 90, turn 90
-      while(leftBlack() == 0 && rightBlack() == 0){
-          qtr.read(bw_vals);
-          go_motors(-70);
-        }
-        motorsStop();
-     }
-     
-    }
-    motorsStop();
-  }
-  
-}*/
-                                       
-void tCase()//case for t-intersection: |--                                         
+
+void tCase()//case for t-intersection: |--
 {
   qtr.read(bw_vals);
   Serial.print("Left Black: ");
   Serial.println(leftBlack());
   Serial.print("Right Black: ");
   Serial.println(rightBlack());
-  if (leftBlack() >= 4 || rightBlack() >= 4) // if sees black on either edge, not both
+  if ((leftBlack() >= 4) != (rightBlack() >= 4)) // if sees black on either edge, not both
   {
-    if(leftBlack() == 4 && rightBlack() == 4)
-    {
-      motorsStop();
-      forwardCm(2.0, 70);//move past the intersection case
-    }
     int turn = ((leftBlack() >= 4) * -90) + ((rightBlack() >= 4) * 90);//turn is -90 for left, 90 for right
     forwardCm(2.5, 70);//move past the intersection case
     qtr.read(bw_vals);
-    if(leftBlack() == 0 && rightBlack() == 0){//all white?(meaning it is a 90 turn)
+    if (leftBlack() == 0 && rightBlack() == 0) { //all white?(meaning it is a 90 turn)
       enc_turn(turn, 100);//turn 90 degrees
-      while(leftBlack() == 0 && rightBlack() == 0){
+      while (leftBlack() == 0 && rightBlack() == 0) {
         go_motors(-70);//back up until you see black line again
         qtr.read(bw_vals);
       }
       backwardCm(1.5, 70);
-    } 
-    motorsStop();   
+    }
+    motorsStop();
   }
-  
+
 }
 void lineTrace() {//main line tracking function
 
@@ -296,10 +242,10 @@ void lineTrace() {//main line tracking function
 #endif
 
   last_error = error;
-  #ifdef main_bot
+#ifdef main_bot
   //set LED to blue for debugging
   set_LED(blue);
-  #endif
+#endif
 
 
 }

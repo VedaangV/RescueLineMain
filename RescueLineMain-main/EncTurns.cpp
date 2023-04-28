@@ -64,7 +64,7 @@ void enc_turn_abs(int deg, int speed)//turns a certain amount of degrees, roundi
   int target = 0;
   motorsStop();
   int abs_yaw = getYaw();
-  abs_yaw += ((abs_yaw % 90 >= 45 /* should round up?*/) * (90 - (abs_yaw % 90))/*round up*/) + ((abs_yaw % 90 < 45 /*should round down?*/) * (-1 *(abs_yaw % 90))/*round down*/);//rounds yaw to nearest 90
+  abs_yaw += ((abs_yaw % 90 >= 45 /* should round up?*/) & (90 - (abs_yaw % 90))/*round up*/) + ((abs_yaw % 90 < 45 /*should round down?*/) & (-1 *(abs_yaw % 90))/*round down*/);//rounds yaw to nearest 90
   target = abs_yaw + deg;
 
   if (target < 0)

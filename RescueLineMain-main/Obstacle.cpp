@@ -3,7 +3,8 @@
 volatile long pulseMsSt = 0;
 volatile long pulseMsEd = 0;
 volatile bool pulseFirst = 1;
-
+  int trig = 4;
+  int echo = 5;
 void distanceISR()
 {
 
@@ -21,8 +22,7 @@ void distanceISR()
 
 float getFrontDistance()//get distance of Front US
 {
-  int trig = 4;
-  int echo = 5;
+
   digitalWrite(trig, LOW);
   delay(1);
   digitalWrite(trig, HIGH);

@@ -26,8 +26,13 @@ extern int redPin;
 extern int greenPin;
 extern int bluePin;
 enum led_colors {red, green, blue, off};
+
 //for line tracing--------------------------------
 extern int bw_vals[8];
+extern const int sensorCount;//# of qtr array sensors
+extern float integral; extern float derivative; extern float last_error;
+enum qtr_check {different, white, black};
+extern int count;
 
 //for intersections-----------------------------
 extern const char* serialReq;
@@ -39,24 +44,57 @@ extern int green_count; extern int silver_count;
 extern int rsum;
 extern int lsum;
 
-//all func declarations.
+//for obstacle--------------------------
+extern int trig;
+extern int echo;
 
+//functions.cpp---------------------------
 void setMultipleMotors(int left, int right);
 void go_motors(int motorSpeed);
 void rturn(int motorSpeed);
 void lturn(int motorSpeed);
-void setup_qtr();
-float error_calc();
-void qtr_print();
-void pid_print();
-void lineTrace();
-void diff_print();
 float cm_to_encoders(float cm);
 void Interruptfunc();
 void forward_enc(int enc, int motor_speed);
 void forwardCm(float dist, int motor_speed);
 void backward_enc(int enc, int motor_speed);
 void backwardCm(float dist, int motor_speed);
+void tcaselect(uint8_t i);
+void rightMotorRun(int motorSpeed);
+void leftMotorRun(int motorSpeed);
+void motorsStop();
+void set_LED(led_colors);
+
+//enc_turn-----------------------------------
+void enc_turn(int deg, int speed);
+float getYaw();
+float getPitch();
+void bnoSetup();
+void enc_turn_abs(int deg, int speed);
+bool enc_turn(int deg, int speed, int tCase);
+
+//intersections------------------------------
+int get_color();
+void get_vals();
+void greensq();
+void greensqturn(int turn_target);
+void get_ok(sides);
+void init_color(sides);
+
+//line tracing------------------------------
+void setup_qtr();
+float error_calc();
+void qtr_print();
+void pid_print();
+void lineTrace();
+void diff_print();
+float qtr_average(int start, int finish);
+int check_left();
+int check_right();
+void tCase();
+int check_all();
+
+//obstacle-------------------------------
 bool seeObs(long dist);
 long getCm();
 long getInch();
@@ -64,26 +102,6 @@ long microToCm(long microseconds);
 long microToInch(long microseconds);
 void avoid(int sign);
 void obstacle();
-void tcaselect(uint8_t i);
-int check_tCase();
-int check_all();
-void enc_turn(int deg, int speed);
-float getYaw();
-float getPitch();
-int get_color();
-void get_vals();
-void greensq();
-void greensqturn(int turn_target);
-void motorsStop();
-void rightMotorRun(int motorSpeed);
-void leftMotorRun(int motorSpeed);
-void bnoSetup();
-float qtr_average(int start, int finish);
-void get_ok(sides);
-int check_left();
-int check_right();
-void enc_turn_abs(int deg, int speed);
-bool enc_turn(int deg, int speed, int tCase);
 float getFrontDistance();
-void set_LED(led_colors color);
+
 #endif

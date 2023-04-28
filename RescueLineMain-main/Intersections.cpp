@@ -27,6 +27,32 @@ int lsum = 0;
 
 
 //after reading values, as7262 sensors print out "OK" get_ok functions search for the "OK" on Serial 2 and Serial 3 respectively to remove the "OK" so it doesn't interfere with reading
+void init_color(sides sensor){
+  switch (sensor){
+    case right:
+      Serial2.begin(115200);
+      Serial2.println("ATINTTIME=1");
+      Serial2.println("ATTCSMD=1");
+      while (Serial2.available() == 0)
+      {
+        Serial.println("Serial 2 not available");
+      }
+      Serial.println("serial 2 available");
+      get_ok(right);
+      
+    case left:
+      Serial3.begin(115200);
+      Serial3.println("ATINTTIME=1");
+      Serial3.println("ATTCSMD=1");
+
+      while (Serial3.available() == 0)
+      {
+       Serial.println("Serial 3 not available");
+      }
+      Serial.println("serial 3 available");
+      get_ok(left);
+  }
+}
 void get_ok(sides sensor) //searches on serial 2
 {
   switch (sensor) {
