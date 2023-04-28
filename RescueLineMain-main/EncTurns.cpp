@@ -58,13 +58,14 @@ void enc_turn(int deg, int speed)//turns a specific amount of degrees
 
   motorsStop();
 }
-bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
+void enc_turn_abs(int deg, int speed)//turns a certain amount of degrees, rounding starting rotation to the nearest 90
 {
-  bool seeBlack = 0;
+
   int target = 0;
   motorsStop();
-  yaw = getYaw();
-  target = yaw + deg;
+  int abs_yaw = getYaw();
+  abs_yaw += ((abs_yaw % 90 >= 45 /* should round up?*/) * (90 - (abs_yaw % 90))/*round up*/) + ((abs_yaw % 90 < 45 /*should round down?*/) * (-1 *(abs_yaw % 90))/*round down*/);//rounds yaw to nearest 90
+  target = abs_yaw + deg;
 
   if (target < 0)
   {
@@ -90,8 +91,46 @@ bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
   {
     //Serial.println(yaw);
     setMultipleMotors(-calc_speed, calc_speed);
+    yaw = getYaw();
+  }
+
+  motorsStop();
+}
+bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
+{
+  bool seeBlack = 0;
+  int target = 0;
+  motorsStop();
+  yaw = getYaw();
+  target = yaw + deg;
+
+  if (target < 0)
+  {
+    target += 360;
+  }
+
+  else if (target > 360)
+  {
+    target -= 360;
+  }
+  Serial.print("Degree: ");
+  Serial.println(deg);
+
+  Serial.print("target: ");
+  Serial.println(target);
+  int calc_speed = ((deg * -1) * speed) / abs(deg);
+  int calc_speed_right = ((deg * -1) * speed) / abs(deg) + 10;
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
+  Serial.println(calc_speed);
+  Serial.print("LEFT MOTOR: ");
+  Serial.println(-calc_speed);
+
+  while ((yaw > target + 2) || (yaw < target - 2))
+  {
+    //Serial.println(yaw);
+    setMultipleMotors(-calc_speed, calc_speed_right);
     qtr.read(bw_vals);
-    if(bw_vals[tCase] > BLACK_THRESH){
+    if (bw_vals[tCase] > BLACK_THRESH) {
       seeBlack = true;
     }
     yaw = getYaw();

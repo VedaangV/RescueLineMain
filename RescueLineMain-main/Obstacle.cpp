@@ -21,12 +21,14 @@ void distanceISR()
 
 float getFrontDistance()//get distance of Front US
 {
-  digitalWrite(5, LOW);
+  int trig = 4;
+  int echo = 5;
+  digitalWrite(trig, LOW);
   delay(1);
-  digitalWrite(5, HIGH);
+  digitalWrite(trig, HIGH);
   delay(1);
-  digitalWrite(5, LOW);
-  long pulseTime = pulseIn(2, HIGH);
+  digitalWrite(trig, LOW);
+  long pulseTime = pulseIn(echo, HIGH);
   float distance;
   distance = pulseTime * 0.034 / 2;
   if (distance < 0)
@@ -37,6 +39,7 @@ float getFrontDistance()//get distance of Front US
 }
 
 bool seeObs(long dist) { //sees obstacle?
+  Serial.println(getFrontDistance());
   if (getFrontDistance() <= dist) {
     return true;
   }
@@ -46,20 +49,22 @@ bool seeObs(long dist) { //sees obstacle?
 }
 
 void avoid(int sign) { //move around obstacle
-  forwardCm(15.0, 70);
-  enc_turn(-90 * sign, 70);
+  forwardCm(15.0, 100);
+  enc_turn(-90 * sign, 100);
   forwardCm(40.0, 70);
-  enc_turn(-90 * sign, 70);
-  forwardCm(15.0, 70);
-  enc_turn(90 * sign, 70);
+  enc_turn(-90 * sign, 100);
+  forwardCm(15.0, 100);
+  enc_turn(90 * sign, 100);
 }
 void obstacle() { //main obstacle function
-  enc_turn(90, 70);
+  if(seeObs(8.0)){
+  enc_turn(90, 100);
   if (seeObs(10.0)) { //sees wall
-    enc_turn(180, 70);
+    enc_turn(180, 100);
     avoid(-1);
   }
   else {
     avoid(1);
+  }
   }
 }

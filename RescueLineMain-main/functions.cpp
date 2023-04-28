@@ -1,5 +1,8 @@
 //below are essential functions, used all across our project.
 #include "Header.h"
+int redPin = A11;
+int greenPin = A10;
+int bluePin = A9;
 volatile int enc = 0;
 
 float cm_to_encoders(float cm) {
@@ -115,4 +118,9 @@ void leftMotorRun(int motorSpeed) { //move left motor
 }
 void motorsStop() { //stop all motors
   setMultipleMotors(0, 0);
+}
+void set_LED(led_colors color){//set led to red, green, or blue
+  digitalWrite(redPin, HIGH * (color == red));//set red high if color is red
+  digitalWrite(greenPin, HIGH * (color == green));//set green high if color is green
+  digitalWrite(bluePin, HIGH * (color == blue));//set blue high if color is blue
 }

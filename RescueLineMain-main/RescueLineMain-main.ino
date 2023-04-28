@@ -1,5 +1,7 @@
 //main rescue line code
 #include "Header.h"
+int x = 0;
+const char* serialReq="ATDATA";
 void setup() {
   //setup in here
   setup_qtr();
@@ -18,7 +20,7 @@ void setup() {
     Serial.println("Serial 2 not available");
   }
   Serial.println("serial 2 available");
-  get_ok2();
+  get_ok(right);
 
   Serial3.begin(115200);
   Serial3.println("ATINTTIME=1");
@@ -29,28 +31,19 @@ void setup() {
     Serial.println("Serial 3 not available");
   }
   Serial.println("serial 3 available");
-  get_ok3();
-  delay(2000);
+  get_ok(left);
+  
 
   //led pins
-  pinMode(A9, OUTPUT); //blue
-  pinMode(A10, OUTPUT); //green
-  pinMode(A11, OUTPUT); //red
-  
-  Serial2.println("ATDATA"); //command to request data
-  get_ok2();
-
-  Serial3.println("ATDATA"); //command to request data
-  get_ok3();
-
+  pinMode(redPin, OUTPUT); pinMode(greenPin, OUTPUT); pinMode(bluePin, OUTPUT);
+  //obstacle pins
+  pinMode(4, OUTPUT);
+  pinMode(5, INPUT);
+ 
 }
 void loop() {
+//  Serial2.println(serialReq);
+//  Serial3.println(serialReq);
   lineTrace();
   greensq();
-   
-  Serial2.println("ATDATA"); //command to request data
-  get_ok2();
-
-  Serial3.println("ATDATA"); //command to request data
-  get_ok3();
 }
