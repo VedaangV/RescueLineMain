@@ -3,8 +3,8 @@
 volatile long pulseMsSt = 0;
 volatile long pulseMsEd = 0;
 volatile bool pulseFirst = 1;
-  int trig = 4;
-  int echo = 5;
+int trig = 4;
+int echo = 5;
 void distanceISR()
 {
 
@@ -49,22 +49,32 @@ bool seeObs(long dist) { //sees obstacle?
 }
 
 void avoid(int sign) { //move around obstacle
+  bool flag = false;
   forwardCm(15.0, 100);
   enc_turn(-90 * sign, 100);
   forwardCm(40.0, 70);
   enc_turn(-90 * sign, 100);
-  forwardCm(15.0, 100);
+  int enc1 = enc;
+  while (leftBlack() == 0 && rightBlack() == 0) { //forward until black line
+    if (enc - enc1 >= cm_to_encoders(24.0) && !flag) { //if traveled more than or 22cm (lost the line)
+      enc_turn(-90 * sign, 100);//turn again to find the line
+      flag = true;//ensures that it only does this pnce
+    }
+    go_motors(70);
+    qtr.read(bw_vals);
+  }
+  forwardCm(7.0, 70);
   enc_turn(90 * sign, 100);
 }
 void obstacle() { //main obstacle function
-  if(seeObs(8.0)){
-  enc_turn(90, 100);
-  if (seeObs(10.0)) { //sees wall
-    enc_turn(180, 100);
-    avoid(-1);
-  }
-  else {
-    avoid(1);
-  }
+  if (seeObs(8.0)) {
+    enc_turn(90, 100);
+    if (seeObs(10.0)) { //sees wall
+      enc_turn(180, 100);
+      avoid(-1);
+    }
+    else {
+      avoid(1);
+    }
   }
 }

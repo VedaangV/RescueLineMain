@@ -1,7 +1,7 @@
 //main rescue line code
 #include "Header.h"
 int x = 0;
-const char* serialReq="ATDATA";
+const char* serialReq = "ATDATA";
 void setup() {
   //setup in here
   setup_qtr();
@@ -21,8 +21,8 @@ void setup() {
 
 }
 void loop() {
-  Serial2.println(serialReq);
-  Serial3.println(serialReq);
-  lineTrace();
   greensq();
+  obstacle();
+  lineTrace();
+
 }

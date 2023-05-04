@@ -14,7 +14,7 @@ float lsensor[6];
 
 #define seeSilver (rsensor[G]/rsensor[R] >= 25 && lsensor[G]/lsensor[R] >= 25)
 #define silverCounter (silver_count > 7) //check is sensor sees silver at least ___ times in a row before accepting as "true silver" rather than accidental silver
-#define falseGreen()  ((check_left() == 2) || (check_right() == 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
+#define falseGreen()  ((leftBlack() >= 2) || (rightBlack() >= 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
 
 const float green_check = 13;
 
@@ -32,6 +32,7 @@ void init_color(sides sensor) {
     case right:
       Serial2.begin(115200);
       Serial2.println("ATINTTIME=1");
+      Serial2.println("ATGAIN=1");
       Serial2.println("ATTCSMD=1");
       while (Serial2.available() == 0)
       {
@@ -43,6 +44,7 @@ void init_color(sides sensor) {
     case left:
       Serial3.begin(115200);
       Serial3.println("ATINTTIME=1");
+      Serial3.println("ATGAIN=1");
       Serial3.println("ATTCSMD=1");
 
       while (Serial3.available() == 0)
@@ -92,19 +94,19 @@ void get_vals()
 
 
   //extra code for printing- use either this or the above code
-  Serial.println("rsensor");
-  Serial.print(rsensor[V]);
-  Serial.print("  ");
-  Serial.print(rsensor[B]);
-  Serial.print("  ");
-  Serial.print(rsensor[G]);
-  Serial.print("  ");
-  Serial.print(rsensor[Y]);
-  Serial.print("  ");
-  Serial.print(rsensor[O]);
-  Serial.print("  ");
-  Serial.print(rsensor[R]);
-  Serial.println("  ");
+  /*Serial.println("rsensor");
+    Serial.print(rsensor[V]);
+    Serial.print("  ");
+    Serial.print(rsensor[B]);
+    Serial.print("  ");
+    Serial.print(rsensor[G]);
+    Serial.print("  ");
+    Serial.print(rsensor[Y]);
+    Serial.print("  ");
+    Serial.print(rsensor[O]);
+    Serial.print("  ");
+    Serial.print(rsensor[R]);
+    Serial.println("  ");*/
 
 
   rsum = rsensor[G] + rsensor[Y] + rsensor[O] + rsensor[R];
@@ -128,19 +130,19 @@ void get_vals()
 
 
   //extra code for printing- use either this or above code
-  Serial.println("lsensor");
-  Serial.print(lsensor[V]);
-  Serial.print("  ");
-  Serial.print(lsensor[B]);
-  Serial.print("  ");
-  Serial.print(lsensor[G]);
-  Serial.print("  ");
-  Serial.print(lsensor[Y]);
-  Serial.print("  ");
-  Serial.print(lsensor[O]);
-  Serial.print("  ");
-  Serial.print(lsensor[R]);
-  Serial.println("  ");
+  /* Serial.println("lsensor");
+    Serial.print(lsensor[V]);
+    Serial.print("  ");
+    Serial.print(lsensor[B]);
+    Serial.print("  ");
+    Serial.print(lsensor[G]);
+    Serial.print("  ");
+    Serial.print(lsensor[Y]);
+    Serial.print("  ");
+    Serial.print(lsensor[O]);
+    Serial.print("  ");
+    Serial.print(lsensor[R]);
+    Serial.println("  ");*/
 
   //Since we are using the g/r ratio to detect green, r cannot be equal to zero. if r == 0, set it to 1
   if (rsensor[R] == 0)
@@ -183,7 +185,7 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
 #else
   forwardCm(9, 50);
   enc_turn_abs(turn_target, 100);
-  backwardCm(4.0, 50);
+  backwardCm(3.0, 50);
 #endif
 }
 
@@ -247,6 +249,7 @@ void greensq()//checks for green and moves accordingly
       Serial.println("check doubleGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
+      qtr.read(bw_vals);
       if (!falseGreen() && greenCounter())
       {
         Serial.print("DOUBLE GREEN");
@@ -262,25 +265,27 @@ void greensq()//checks for green and moves accordingly
       Serial.println("check rightGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
+      qtr.read(bw_vals);
+
       if (!falseGreen() && greenCounter() && seeGradient(rsum))
       {
-        nudge();
+        //nudge();
         Serial2.println(serialReq);
         Serial3.println(serialReq);
-        if (get_color() == 2) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
-        {
+        // if (get_color() == 2) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        //{
 
-          set_LED(off);
-          Serial.println("RIGHT GREEN");
-          greensqturn(90);
-          green_count = 0;
-          // Serial.println("zero");
-        }
+        set_LED(off);
+        Serial.println("RIGHT GREEN");
+        greensqturn(90);
+        green_count = 0;
+        // Serial.println("zero");
+        //}
 
-        else
-        {
-          green_count = 0;
-        }
+        /*  else
+          {
+            green_count = 0;
+           }*/
 
       }
       break;
@@ -289,26 +294,27 @@ void greensq()//checks for green and moves accordingly
       Serial.println("check leftGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
+      qtr.read(bw_vals);
       if (!falseGreen() && greenCounter() && seeGradient(lsum))
       {
-        nudge();
+        //    nudge();
         Serial2.println(serialReq);
         Serial3.println(serialReq);
-        if (get_color() == 1) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
-        {
+        //    if (get_color() == 1) //recheck to see whether robot is still seeing green after nudge. if yes, proceed to turn.
+        //    {
 
-          set_LED(off);
-          Serial.println("LEFT GREEN");
-          greensqturn(-90);
-          green_count = 0;
-          // Serial.println("zero");
-        }
+        set_LED(off);
+        Serial.println("LEFT GREEN");
+        greensqturn(-90);
+        green_count = 0;
+        // Serial.println("zero");
+        //    }
 
-        else
-        {
-          // Serial.println("zero");
-          green_count = 0;
-        }
+        /*   else
+          {
+             Serial.println("zero");
+            green_count = 0;
+          }*/
       }
       break;
 

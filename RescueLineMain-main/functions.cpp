@@ -43,7 +43,6 @@ void forwardCm(float dist, int motor_speed) {//go forward for cm
 }
 
 
-
 void setMultipleMotors(int left, int right) { //set motors
   //port 1
   left = left > 255 ? 255 : left;
@@ -119,10 +118,10 @@ void leftMotorRun(int motorSpeed) { //move left motor
 void motorsStop() { //stop all motors
   setMultipleMotors(0, 0);
 }
-void set_LED(led_colors color){//set led to red, green, or blue
-  #ifdef main_bot
+void set_LED(led_colors color) { //set led to red, green, or blue
+#ifdef main_bot
   digitalWrite(redPin, HIGH & (color == red));//set red high if color is red
   digitalWrite(greenPin, HIGH & (color == green));//set green high if color is green
   digitalWrite(bluePin, HIGH & (color == blue));//set blue high if color is blue
-  #endif
+#endif
 }

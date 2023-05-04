@@ -16,8 +16,9 @@ const float kd = 0.0001;
 //sensor order for qtr is different on each bot.
 //MAIN BOT: sensor order acsends right to left (0 is right most, 7 is left most)
 //BACK_UP BOT: sensor order ascends from left to right (0 is left most, 7 is right most);
-#define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
-#define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
+
+#define leftWhite() ((bw_vals[7] < WHITE_THRESH) + (bw_vals[6] <WHITE_THRESH) + (bw_vals[5] < WHITE_THRESH) + (bw_vals[4] < WHITE_THRESH))
+#define rightWhite() ((bw_vals[3] < WHITE_THRESH) + (bw_vals[2] <WHITE_THRESH) + (bw_vals[1] < WHITE_THRESH) + (bw_vals[0] < WHITE_THRESH))
 int leftSensor = 7;
 int rightSensor = 0;
 
@@ -26,8 +27,9 @@ const float kp = 0.07;//error multiplier
 const float ki = 0.000000;//integral multiplier
 const float kd = 0.00; //kd multiplier
 
-#define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
-#define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
+
+#define rightWhite() ((bw_vals[7] < WHITE_THRESH) + (bw_vals[6] <WHITE_THRESH) + (bw_vals[5] < WHITE_THRESH) + (bw_vals[4] < WHITE_THRESH))
+#define leftWhite() ((bw_vals[3] < WHITE_THRESH) + (bw_vals[2] <WHITE_THRESH) + (bw_vals[1] < WHITE_THRESH) + (bw_vals[0] < WHITE_THRESH))
 int leftSensor = 0;
 int rightSensor = 7;
 #endif
@@ -111,120 +113,31 @@ void diff_print() {//print the diff between sensor pairs.
   }
 }
 
-int check_all() {//check all sensors to see if they have the same relative values
-
-
-  qtr.read(bw_vals);
-  int result = different;
-  bool case_flag = false;
-
-  for (int i = 0; i < 8; i++) {
-    if (bw_vals[i] < WHITE_THRESH && result == black) { //if see white when previously see black
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && result == white) { //if see black when previously white
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] < WHITE_THRESH && !case_flag) {
-      result = white;//all white
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && !case_flag) {
-      result = black;//all black
-    }
-
-  }
-  return result;
-}
-int check_left() {//check all sensors to see if they have the same relative values
-
-
-  qtr.read(bw_vals);
-  int result = different;
-  bool case_flag = false;
-
-  for (int i = 4; i < 8; i++) {
-    if (bw_vals[i] < WHITE_THRESH && result == black) { //if see white when previously see black
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && result == white) { //if see black when previously white
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] < WHITE_THRESH && !case_flag) {
-      result = white;//all white
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && !case_flag) {
-      result = black;//all black
-    }
-
-  }
-  return result;
-}
-int check_right() {//check all sensors to see if they have the same relative values
-
-
-  qtr.read(bw_vals);
-  int result = different;
-  bool case_flag = false;
-
-  for (int i = 0; i < 4 ; i++) {
-    if (bw_vals[i] < WHITE_THRESH && result == black) { //if see white when previously see black
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && result == white) { //if see black when previously white
-      result = different;//different vals
-      case_flag = true;
-    }
-
-    else if (bw_vals[i] < WHITE_THRESH && !case_flag) {
-      result = white;//all white
-    }
-
-    else if (bw_vals[i] > BLACK_THRESH && !case_flag) {
-      result = black;//all black
-    }
-
-  }
-  return result;
-}
-
-
 void tCase()//case for t-intersection: |--
 {
   qtr.read(bw_vals);
   if ((leftBlack() >= 4) != (rightBlack() >= 4)) // if sees black on either edge, not both
   {
     int turn = ((leftBlack() >= 4) * -90) + ((rightBlack() >= 4) * 90);//turn is -90 for left, 90 for right
-    forwardCm(2.5, 70);//move past the intersection case
+    forwardCm(3.5 + (3.5 * (turn > 0)), 70);//move past the intersection case
     qtr.read(bw_vals);
     if (leftBlack() == 0 && rightBlack() == 0) { //all white?(meaning it is a 90 turn)
       enc_turn(turn, 100);//turn 90 degrees
+      enc_turn_abs(0, 80);
       while (leftBlack() == 0 && rightBlack() == 0) {
         go_motors(-70);//back up until you see black line again
         qtr.read(bw_vals);
       }
-      backwardCm(1.5, 70);
     }
     motorsStop();
   }
 
 }
 void lineTrace() {//main line tracking function
-  float maxSpeed = 220.0;
+  float maxSpeed = 190.0;
   int base_speed = 65  + getPitch();//base speed for Line Tracing
   tCase();
-
+  // gap();
   float error = error_calc();//calculating error
   integral += error;//summing up all erors during runtime
   derivative = error - last_error;//checking the change in the errors over time.

@@ -3,7 +3,7 @@
 #pragma once
 //libraries, global vars, and essential functions in here:
 //#define main_bot 1
-#define back_up_bot 1
+//#define back_up_bot 1
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
@@ -14,11 +14,14 @@ extern QTRSensors qtr;
 
 #define BLACK_THRESH 1700//greater than means it's black
 #define WHITE_THRESH 700 //less than means it's white
-
+#define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
+#define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 #else
 
-#define BLACK_THRESH 1700
-#define WHITE_THRESH 1000
+#define BLACK_THRESH 1252.5
+#define WHITE_THRESH 897.5
+#define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
+#define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 
 #endif
 extern int x;
@@ -26,6 +29,7 @@ extern int redPin;
 extern int greenPin;
 extern int bluePin;
 enum led_colors {red, green, blue, off};
+extern volatile int enc;
 
 //for line tracing--------------------------------
 extern int bw_vals[8];
@@ -92,7 +96,6 @@ float qtr_average(int start, int finish);
 int check_left();
 int check_right();
 void tCase();
-int check_all();
 
 //obstacle-------------------------------
 bool seeObs(long dist);
