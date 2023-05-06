@@ -3,7 +3,12 @@
 #pragma once
 //libraries, global vars, and essential functions in here:
 //#define main_bot 1
-//#define back_up_bot 1
+#define back_up_bot 1
+#define debug_greensq
+//#define debug_lineTrace
+//#define debug_obstacle
+//#define debug_tCase
+//#define debug_none
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
@@ -18,12 +23,16 @@ extern QTRSensors qtr;
 #define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 #else
 
-#define BLACK_THRESH 1252.5
-#define WHITE_THRESH 897.5
+//#define BLACK_THRESH 1252.5
+//#define WHITE_THRESH 897.5
+#define BLACK_THRESH 1774
+#define WHITE_THRESH 954
 #define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
 #define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 
 #endif
+
+enum debug {lineTracing, greensquare, obs, t_case, none};
 extern int x;
 extern int redPin;
 extern int greenPin;

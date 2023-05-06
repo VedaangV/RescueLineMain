@@ -116,14 +116,30 @@ void diff_print() {//print the diff between sensor pairs.
 void tCase()//case for t-intersection: |--
 {
   qtr.read(bw_vals);
-  if ((leftBlack() >= 4) != (rightBlack() >= 4)) // if sees black on either edge, not both
+  if ((leftBlack() >= 3) || (rightBlack() >= 3)) // if sees black on either edge
   {
-    int turn = ((leftBlack() >= 4) * -90) + ((rightBlack() >= 4) * 90);//turn is -90 for left, 90 for right
-    forwardCm(3.5 + (3.5 * (turn > 0)), 70);//move past the intersection case
+    int turn = ((leftBlack() >= 3) * -1) + ((rightBlack() >= 3) * 1);//turn is -90 for left, 90 for right
+    if (turn == 0){
+      return;
+    }
+    #ifdef debug_tCase
+      Serial.print("Turn: ");
+      Serial.println(turn);
+    #endif
+    forwardCm(3.5 + (3.5 * (turn > 0)), 60);//move past the intersection case
+    motorsStop();
+    enc_turn(-10, 80);
     qtr.read(bw_vals);
     if (leftBlack() == 0 && rightBlack() == 0) { //all white?(meaning it is a 90 turn)
-      enc_turn(turn, 100);//turn 90 degrees
-      enc_turn_abs(0, 80);
+      #ifdef debug_tCase
+        Serial.println("All white");
+      #endif        
+      float prev_yaw = getYaw();
+      while(leftBlack() == 0 && rightBlack() == 0 && getYaw() - prev_yaw < 90){//turn 90 degrees or until black     
+        Serial.println(turn); 
+        rturn(turn * 90);
+        qtr.read(bw_vals);
+      }
       while (leftBlack() == 0 && rightBlack() == 0) {
         go_motors(-70);//back up until you see black line again
         qtr.read(bw_vals);
@@ -134,9 +150,11 @@ void tCase()//case for t-intersection: |--
 
 }
 void lineTrace() {//main line tracking function
-  float maxSpeed = 190.0;
+  float maxSpeed = 175.0;
   int base_speed = 65  + getPitch();//base speed for Line Tracing
+  if (x % 2 == 0){
   tCase();
+  }
   // gap();
   float error = error_calc();//calculating error
   integral += error;//summing up all erors during runtime
@@ -170,5 +188,21 @@ void lineTrace() {//main line tracking function
   set_LED(blue);
 #endif
 
+#ifdef debug_lineTrace
+  Serial.print("\n");
+  Serial.print("Error: ");
+  Serial.println(error);
+  Serial.print("Derivative: ");
+  Serial.println(derivative);
+  Serial.print("Integral: ");
+  Serial.println(integral);
+  Serial.print("Adjust Speed: ");
+  Serial.println(adjustSpeed);
+  Serial.print("leftSpeed: ");
+  Serial.print(leftSpeed);
+  Serial.print("  rightSpeed: ");
+  Serial.println(rightSpeed);
+  #endif
+  
 
 }

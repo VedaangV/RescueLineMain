@@ -8,15 +8,16 @@ float lsensor[6];
 #define seeGradient(s)  (s >= 25 && s <= 65)
 
 #else
-#define greenCounter() (green_count > 3) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
+#define greenCounter() (green_count > 2) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
 #define seeGradient(s)  (s >= 17 && s <= 45)
 #endif
 
-#define seeSilver (rsensor[G]/rsensor[R] >= 25 && lsensor[G]/lsensor[R] >= 25)
+#define seeSilver (rsensor[G]/rsensor[R] >= 35 || lsensor[G]/lsensor[R] >= 35)
 #define silverCounter (silver_count > 7) //check is sensor sees silver at least ___ times in a row before accepting as "true silver" rather than accidental silver
 #define falseGreen()  ((leftBlack() >= 2) || (rightBlack() >= 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
 
-const float green_check = 13;
+const float green_checkL = 16.0;
+const float green_checkR = 15.0;
 
 const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int silver = 4;
 int green_count = 0; int silver_count = 0;
@@ -31,8 +32,8 @@ void init_color(sides sensor) {
   switch (sensor) {
     case right:
       Serial2.begin(115200);
-      Serial2.println("ATINTTIME=1");
-      Serial2.println("ATGAIN=1");
+      Serial2.println("ATINTTIME=2");
+      //Serial2.println("ATGAIN=1");
       Serial2.println("ATTCSMD=1");
       while (Serial2.available() == 0)
       {
@@ -43,8 +44,8 @@ void init_color(sides sensor) {
 
     case left:
       Serial3.begin(115200);
-      Serial3.println("ATINTTIME=1");
-      Serial3.println("ATGAIN=1");
+      Serial3.println("ATINTTIME=2");
+      //Serial3.println("ATGAIN=1");
       Serial3.println("ATTCSMD=1");
 
       while (Serial3.available() == 0)
@@ -94,25 +95,12 @@ void get_vals()
 
 
   //extra code for printing- use either this or the above code
-  /*Serial.println("rsensor");
-    Serial.print(rsensor[V]);
-    Serial.print("  ");
-    Serial.print(rsensor[B]);
-    Serial.print("  ");
-    Serial.print(rsensor[G]);
-    Serial.print("  ");
-    Serial.print(rsensor[Y]);
-    Serial.print("  ");
-    Serial.print(rsensor[O]);
-    Serial.print("  ");
-    Serial.print(rsensor[R]);
-    Serial.println("  ");*/
+
 
 
   rsum = rsensor[G] + rsensor[Y] + rsensor[O] + rsensor[R];
 
-  //Serial.print("Sum right: ");
-  //Serial.println(rsum);
+
 
 
 
@@ -130,19 +118,7 @@ void get_vals()
 
 
   //extra code for printing- use either this or above code
-  /* Serial.println("lsensor");
-    Serial.print(lsensor[V]);
-    Serial.print("  ");
-    Serial.print(lsensor[B]);
-    Serial.print("  ");
-    Serial.print(lsensor[G]);
-    Serial.print("  ");
-    Serial.print(lsensor[Y]);
-    Serial.print("  ");
-    Serial.print(lsensor[O]);
-    Serial.print("  ");
-    Serial.print(lsensor[R]);
-    Serial.println("  ");*/
+
 
   //Since we are using the g/r ratio to detect green, r cannot be equal to zero. if r == 0, set it to 1
   if (rsensor[R] == 0)
@@ -154,15 +130,48 @@ void get_vals()
   {
     lsensor[R] = 1;
   }
+  
+    lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
 
-  /* Serial.print("g/r ratio left: ");
+
+  #ifdef debug_greensq  
+    Serial.println("rsensor");
+    Serial.print(rsensor[V]);
+    Serial.print("  ");
+    Serial.print(rsensor[B]);
+    Serial.print("  ");
+    Serial.print(rsensor[G]);
+    Serial.print("  ");
+    Serial.print(rsensor[Y]);
+    Serial.print("  ");
+    Serial.print(rsensor[O]);
+    Serial.print("  ");
+    Serial.print(rsensor[R]);
+    Serial.println("  ");
+    Serial.println("lsensor");
+    Serial.print(lsensor[V]);
+    Serial.print("  ");
+    Serial.print(lsensor[B]);
+    Serial.print("  ");
+    Serial.print(lsensor[G]);
+    Serial.print("  ");
+    Serial.print(lsensor[Y]);
+    Serial.print("  ");
+    Serial.print(lsensor[O]);
+    Serial.print("  ");
+    Serial.print(lsensor[R]);
+    Serial.println("  ");    
+    Serial.print("g/r ratio left: ");
     Serial.println(lsensor[G]/lsensor[R]);
     Serial.print("g/r ratio right: ");
-    Serial.println(rsensor[G]/rsensor[R]);*/
-  lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
+    Serial.println(rsensor[G]/rsensor[R]);
+    Serial.print("Sum right: ");
+    Serial.println(rsum);
+    Serial.print("Sum Left: ");
+    Serial.println(lsum);
+  #endif
+    
 
-  //Serial.print("Sum Left: ");
-  //Serial.println(lsum);
 
 
 }
@@ -183,7 +192,7 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
 
   }
 #else
-  forwardCm(9, 50);
+  forwardCm(9.5, 50);
   enc_turn_abs(turn_target, 100);
   backwardCm(3.0, 50);
 #endif
@@ -201,24 +210,21 @@ void nudge() //nudges robot forward to determine accidental green
 
 int get_color()//checks for green based on color vals
 {
+  float br_ratio = 6.0;
   get_vals();
 
   bool rcolor = 0; //set to 1 if rsensor is determined to be seeing green
   bool lcolor = 0; //set to 1 if lsensor is determined to be seeing green
 
-  Serial.print("rsensor: ");
-  //Serial.println(rsensor[G] / rsensor[R]);//green over red
-  // Serial.print("lsensor: ");
-  // Serial.println(lsensor[G] / lsensor[R]);//green over red
 
 
-
-  if (rsensor[G] / rsensor[R] >= green_check) //is right sensor seeing green?
+  qtr.read(bw_vals);
+  if (rsensor[G] / rsensor[R] >= green_checkR && rsensor[B]/rsensor[R] >= br_ratio && !falseGreen()) //is right sensor seeing green?
   {
     rcolor = 1;
   }
 
-  if (lsensor[G] / lsensor[R] >= green_check) //is left sensor seeing green?
+  if (lsensor[G] / lsensor[R] >= green_checkL && lsensor[B]/lsensor[R] >= br_ratio && !falseGreen()) //is left sensor seeing green?
   {
     lcolor = 1;
   }
@@ -227,7 +233,12 @@ int get_color()//checks for green based on color vals
   {
     return (4);
   }
-
+  #ifdef debug_greensq
+    Serial.print("\n");
+    Serial.print("get_color: ");
+    Serial.println((rcolor << 1) + lcolor);
+   #endif
+    
   return ((rcolor << 1) + lcolor); //creates binary number: 11=double green, 10=right green, 01=left green, 00=no green
 
 }
@@ -267,7 +278,7 @@ void greensq()//checks for green and moves accordingly
       silver_count = 0;
       qtr.read(bw_vals);
 
-      if (!falseGreen() && greenCounter() && seeGradient(rsum))
+      if (!falseGreen() && greenCounter())
       {
         //nudge();
         Serial2.println(serialReq);
@@ -295,7 +306,7 @@ void greensq()//checks for green and moves accordingly
       green_count++;
       silver_count = 0;
       qtr.read(bw_vals);
-      if (!falseGreen() && greenCounter() && seeGradient(lsum))
+      if (!falseGreen() && greenCounter())
       {
         //    nudge();
         Serial2.println(serialReq);

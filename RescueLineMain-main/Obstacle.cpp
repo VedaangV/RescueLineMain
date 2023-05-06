@@ -35,6 +35,10 @@ float getFrontDistance()//get distance of Front US
   {
     distance = 0;
   }
+  #ifdef debug_obstacle
+    Serial.print("Distance: ");
+    Serial.println(distance);
+ #endif
   return (distance);
 }
 
@@ -68,8 +72,14 @@ void avoid(int sign) { //move around obstacle
 }
 void obstacle() { //main obstacle function
   if (seeObs(8.0)) {
+    #ifdef debug_obstacle
+      Serial.println("Saw obstacle");
+    #endif
     enc_turn(90, 100);
     if (seeObs(10.0)) { //sees wall
+      #ifdef debug_obstacle
+        Serial.println("Saw wall");
+      #endif       
       enc_turn(180, 100);
       avoid(-1);
     }
