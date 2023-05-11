@@ -23,7 +23,7 @@ int leftSensor = 7;
 int rightSensor = 0;
 
 #else
-const float kp = 0.07;//error multiplier
+const float kp = 0.045;//error multiplier
 const float ki = 0.000000;//integral multiplier
 const float kd = 0.00; //kd multiplier
 
@@ -68,7 +68,8 @@ float error_calc() {
   float target_vals[] = {48, -48, 344, 296}; //4/16-storming. 8/*FINAL ROBOT*/
   float multipliers[] = {1.9, 1.6, 1.2, 1.0};
 #else
-  float target_vals[] = {416, 152, 164, 52}; //4/27-storming.
+  //float target_vals[] = {-56, -48, -56, -204}; //5/7-storming.
+  float target_vals[] = {0, -156, -208, -112}; //5/7-vedaanghouse
   float multipliers[] = {2.2, 1.6, 1.2, 1.0};//multipliers for each sensor pair (outer to inner). Outer pairs will have higher multipliers since varying values in them would indicate more extreme cases.
 #endif
 
@@ -112,31 +113,53 @@ void diff_print() {//print the diff between sensor pairs.
     Serial.println(bw_vals[7 - i] - bw_vals[i]);
   }
 }
-
+void gap(float motorSpeed) {
+  float targetYaw = getYaw();
+  if (targetYaw > 180){
+    targetYaw = -(360 - targetYaw);
+  }
+  float multiplier = 0.25;
+  qtr.read(bw_vals);
+  while (leftBlack() == 0 && rightBlack() == 0) {
+    float currentYaw = getYaw();
+    if( currentYaw > 180){
+      currentYaw = -(360 - currentYaw);
+    }
+    float gap_error = currentYaw - targetYaw;
+    float adjust_rotation = gap_error * multiplier;
+    setMultipleMotors(motorSpeed + adjust_rotation, motorSpeed - adjust_rotation);
+    qtr.read(bw_vals);
+  }
+  motorsStop();
+  return;
+}
 void tCase()//case for t-intersection: |--
 {
   qtr.read(bw_vals);
-  if ((leftBlack() >= 3) || (rightBlack() >= 3)) // if sees black on either edge
+  if ((leftBlack() >= 4) || (rightBlack() >= 4)) // if sees black on either edge
   {
-    int turn = ((leftBlack() >= 3) * -1) + ((rightBlack() >= 3) * 1);//turn is -90 for left, 90 for right
-    if (turn == 0){
+    int turn = ((leftBlack() >= 4) * -1) + ((rightBlack() >= 4) * 1);//turn is -90 for left, 90 for right
+    if (turn == 0) {
       return;
     }
-    #ifdef debug_tCase
-      Serial.print("Turn: ");
-      Serial.println(turn);
-    #endif
+#ifdef debug_tCase
+    Serial.print("Turn: ");
+    Serial.println(turn);
+#endif
     forwardCm(3.5 + (3.5 * (turn > 0)), 60);//move past the intersection case
     motorsStop();
     enc_turn(-10, 80);
     qtr.read(bw_vals);
     if (leftBlack() == 0 && rightBlack() == 0) { //all white?(meaning it is a 90 turn)
-      #ifdef debug_tCase
-        Serial.println("All white");
-      #endif        
+#ifdef debug_tCase
+      Serial.println("All white");
+#endif
       float prev_yaw = getYaw();
-      while(leftBlack() == 0 && rightBlack() == 0 && getYaw() - prev_yaw < 90){//turn 90 degrees or until black     
-        Serial.println(turn); 
+      while ((leftBlack() == 0 && rightBlack() == 0)) { //turn 90 degrees or until black
+        if (getYaw() - prev_yaw >= 90) {
+          break;
+        }
+        Serial.println(turn);
         rturn(turn * 90);
         qtr.read(bw_vals);
       }
@@ -144,16 +167,17 @@ void tCase()//case for t-intersection: |--
         go_motors(-70);//back up until you see black line again
         qtr.read(bw_vals);
       }
+      backwardCm(2.0, 70);
     }
     motorsStop();
   }
 
 }
 void lineTrace() {//main line tracking function
-  float maxSpeed = 175.0;
-  int base_speed = 65  + getPitch();//base speed for Line Tracing
-  if (x % 2 == 0){
-  tCase();
+  float maxSpeed = 125.0;
+  int base_speed = 60  + getPitch();//base speed for Line Tracing
+  if (x % 3 == 0) {
+    tCase();
   }
   // gap();
   float error = error_calc();//calculating error
@@ -202,7 +226,7 @@ void lineTrace() {//main line tracking function
   Serial.print(leftSpeed);
   Serial.print("  rightSpeed: ");
   Serial.println(rightSpeed);
-  #endif
-  
+#endif
+
 
 }

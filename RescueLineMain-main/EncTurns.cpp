@@ -4,6 +4,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 float yaw = 0;
 const int m1_forward = -75;
 const int m2_forward = 75;
+float starting_yaw;
 sensors_event_t orientationData;
 imu::Vector<3> rot;
 
@@ -148,4 +149,5 @@ void bnoSetup()
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1);
   }
+  
 }

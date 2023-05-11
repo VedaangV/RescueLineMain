@@ -23,15 +23,18 @@ extern QTRSensors qtr;
 #define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 #else
 
-//#define BLACK_THRESH 1252.5
-//#define WHITE_THRESH 897.5
-#define BLACK_THRESH 1774
-#define WHITE_THRESH 954
+#define BLACK_THRESH 1802 //vedaanghouse-5/7
+#define WHITE_THRESH 958 //vedaanghouse-5/7
+//#define BLACK_THRESH 1180 //storming-5/6
+//#define WHITE_THRESH 644  //storming-5/6
 #define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
 #define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 
 #endif
 
+extern float wheelBase;
+extern float wheelDia;
+extern float botLength;
 enum debug {lineTracing, greensquare, obs, t_case, none};
 extern int x;
 extern int redPin;
@@ -41,6 +44,8 @@ enum led_colors {red, green, blue, off};
 extern volatile int enc;
 
 //for line tracing--------------------------------
+extern int leftSensor;
+extern int rightSensor;
 extern int bw_vals[8];
 extern const int sensorCount;//# of qtr array sensors
 extern float integral; extern float derivative; extern float last_error;
@@ -105,6 +110,7 @@ float qtr_average(int start, int finish);
 int check_left();
 int check_right();
 void tCase();
+void gap(float motorSpeed);
 
 //obstacle-------------------------------
 bool seeObs(long dist);

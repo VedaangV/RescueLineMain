@@ -12,12 +12,12 @@ float lsensor[6];
 #define seeGradient(s)  (s >= 17 && s <= 45)
 #endif
 
-#define seeSilver (rsensor[G]/rsensor[R] >= 35 || lsensor[G]/lsensor[R] >= 35)
-#define silverCounter (silver_count > 7) //check is sensor sees silver at least ___ times in a row before accepting as "true silver" rather than accidental silver
+#define seeSilver (rsum > 300 || lsum > 300)
+#define silverCounter (silver_count > 5) //check is sensor sees silver at least ___ times in a row before accepting as "true silver" rather than accidental silver
 #define falseGreen()  ((leftBlack() >= 2) || (rightBlack() >= 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
 
-const float green_checkL = 16.0;
-const float green_checkR = 15.0;
+const float green_checkL = 0;//16.0;
+const float green_checkR = 0;//15.0;
 
 const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int silver = 4;
 int green_count = 0; int silver_count = 0;
@@ -32,9 +32,12 @@ void init_color(sides sensor) {
   switch (sensor) {
     case right:
       Serial2.begin(115200);
-      Serial2.println("ATINTTIME=2");
-      //Serial2.println("ATGAIN=1");
-      Serial2.println("ATTCSMD=1");
+      Serial2.println("ATINTTIME=1");
+      get_ok(right);
+      Serial2.println("ATGAIN=1");
+      get_ok(right);
+      //Serial2.println("ATTCSMD=1");
+     // get_ok(right);
       while (Serial2.available() == 0)
       {
         Serial.println("Serial 2 not available");
@@ -44,10 +47,12 @@ void init_color(sides sensor) {
 
     case left:
       Serial3.begin(115200);
-      Serial3.println("ATINTTIME=2");
-      //Serial3.println("ATGAIN=1");
-      Serial3.println("ATTCSMD=1");
-
+      Serial3.println("ATINTTIME=1");
+      get_ok(left);
+      Serial3.println("ATGAIN=1");
+      get_ok(left);
+      //Serial3.println("ATTCSMD=1");
+     // get_ok(left);
       while (Serial3.available() == 0)
       {
         Serial.println("Serial 3 not available");
@@ -192,9 +197,28 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
 
   }
 #else
-  forwardCm(9.5, 50);
-  enc_turn_abs(turn_target, 100);
-  backwardCm(3.0, 50);
+if(turn_target < 0){
+  forwardCm(9.5, 50);  
+  enc_turn(-70, 100);
+  qtr.read(bw_vals);
+  while(bw_vals[leftSensor] < WHITE_THRESH){
+    lturn(80);
+    qtr.read(bw_vals);
+  }
+  enc_turn(-10, 90);
+  backwardCm(2.5, 50);
+}
+if(turn_target > 0){
+  forwardCm(9.5, 50);  
+  enc_turn(70, 100);
+  qtr.read(bw_vals);
+  while(bw_vals[rightSensor] < WHITE_THRESH){
+    rturn(80);
+    qtr.read(bw_vals);
+  }
+  enc_turn(10, 90);  
+  backwardCm(2.5, 50);
+}
 #endif
 }
 
@@ -210,7 +234,7 @@ void nudge() //nudges robot forward to determine accidental green
 
 int get_color()//checks for green based on color vals
 {
-  float br_ratio = 6.0;
+  float br_ratio = 4.0;
   get_vals();
 
   bool rcolor = 0; //set to 1 if rsensor is determined to be seeing green
@@ -228,7 +252,11 @@ int get_color()//checks for green based on color vals
   {
     lcolor = 1;
   }
-
+  #ifdef debug_greensq
+    if(falseGreen()){
+      Serial.println("FALSE GREEN");
+    }
+#endif
   if (seeSilver) //checks for silver
   {
     return (4);
