@@ -8,7 +8,7 @@ float lsensor[6];
 #define seeGradient(s)  (s >= 25 && s <= 65)
 
 #else
-#define greenCounter() (green_count > 2) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
+#define greenCounter() (green_count > 1) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
 #define seeGradient(s)  (s >= 17 && s <= 45)
 #endif
 
@@ -19,7 +19,7 @@ float lsensor[6];
 const float green_checkL = 0;//16.0;
 const float green_checkR = 0;//15.0;
 
-const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int silver = 4;
+const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int no_green = 0; const int silver = 4;
 int green_count = 0; int silver_count = 0;
 int rsum = 0;
 int lsum = 0;
@@ -37,7 +37,7 @@ void init_color(sides sensor) {
       Serial2.println("ATGAIN=1");
       get_ok(right);
       //Serial2.println("ATTCSMD=1");
-     // get_ok(right);
+      // get_ok(right);
       while (Serial2.available() == 0)
       {
         Serial.println("Serial 2 not available");
@@ -52,7 +52,7 @@ void init_color(sides sensor) {
       Serial3.println("ATGAIN=1");
       get_ok(left);
       //Serial3.println("ATTCSMD=1");
-     // get_ok(left);
+      // get_ok(left);
       while (Serial3.available() == 0)
       {
         Serial.println("Serial 3 not available");
@@ -81,6 +81,59 @@ void get_ok(sides sensor) //searches on serial 2
 
 
 
+}
+
+void blackIntersections()//case for intersections without green square.
+{
+  // motorsStop();
+  //delay(100);
+  qtr.read(bw_vals);
+
+
+  int turn = ((leftBlack() >= 4) * -1) + ((rightBlack() >= 4) * 1);
+  if (turn == 0) {//if no intersection or cross intersection (cross handled by line tracing)
+    return;
+  }
+
+
+#ifdef debug_blackInt
+  Serial.print("Turn: ");
+  Serial.println(turn);
+#endif
+
+  //determines if it is a t-intersection (|--) or 90
+  forwardCm(5.0, 60);//move past the intersection case
+  motorsStop();
+  enc_turn(-10, 80);
+  qtr.read(bw_vals);
+
+  // -------------------------------------
+  // 90 deg turns
+  if (leftBlack() == 0 && rightBlack() == 0) { //all white?(meaning it is a 90 turn)
+    // turn==-1.. 90 left     turn==1.. 90 right
+
+#ifdef debug_blackInt
+    Serial.println("All white");
+#endif
+    float prev_yaw = getYaw();
+    while ((leftBlack() == 0 && rightBlack() == 0)) { //turn 90 degrees or until black
+      if (getYaw() - prev_yaw >= 90) {
+        break;
+      }
+      Serial.println(turn);
+      rturn(turn * 90);
+      qtr.read(bw_vals);
+    }
+
+    while (leftBlack() == 0 && rightBlack() == 0) {
+      go_motors(-70);//back up until you see black line again
+      qtr.read(bw_vals);
+    }
+    backwardCm(2.0, 70);
+  }
+
+  //--------------------------------------------
+  motorsStop();
 }
 
 
@@ -135,47 +188,47 @@ void get_vals()
   {
     lsensor[R] = 1;
   }
-  
-    lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
+
+  lsum = lsensor[G] + lsensor[Y] + lsensor[O] + lsensor[R];
 
 
-  #ifdef debug_greensq  
-    Serial.println("rsensor");
-    Serial.print(rsensor[V]);
-    Serial.print("  ");
-    Serial.print(rsensor[B]);
-    Serial.print("  ");
-    Serial.print(rsensor[G]);
-    Serial.print("  ");
-    Serial.print(rsensor[Y]);
-    Serial.print("  ");
-    Serial.print(rsensor[O]);
-    Serial.print("  ");
-    Serial.print(rsensor[R]);
-    Serial.println("  ");
-    Serial.println("lsensor");
-    Serial.print(lsensor[V]);
-    Serial.print("  ");
-    Serial.print(lsensor[B]);
-    Serial.print("  ");
-    Serial.print(lsensor[G]);
-    Serial.print("  ");
-    Serial.print(lsensor[Y]);
-    Serial.print("  ");
-    Serial.print(lsensor[O]);
-    Serial.print("  ");
-    Serial.print(lsensor[R]);
-    Serial.println("  ");    
-    Serial.print("g/r ratio left: ");
-    Serial.println(lsensor[G]/lsensor[R]);
-    Serial.print("g/r ratio right: ");
-    Serial.println(rsensor[G]/rsensor[R]);
-    Serial.print("Sum right: ");
-    Serial.println(rsum);
-    Serial.print("Sum Left: ");
-    Serial.println(lsum);
-  #endif
-    
+#ifdef debug_greensq
+  Serial.println("rsensor");
+  Serial.print(rsensor[V]);
+  Serial.print("  ");
+  Serial.print(rsensor[B]);
+  Serial.print("  ");
+  Serial.print(rsensor[G]);
+  Serial.print("  ");
+  Serial.print(rsensor[Y]);
+  Serial.print("  ");
+  Serial.print(rsensor[O]);
+  Serial.print("  ");
+  Serial.print(rsensor[R]);
+  Serial.println("  ");
+  Serial.println("lsensor");
+  Serial.print(lsensor[V]);
+  Serial.print("  ");
+  Serial.print(lsensor[B]);
+  Serial.print("  ");
+  Serial.print(lsensor[G]);
+  Serial.print("  ");
+  Serial.print(lsensor[Y]);
+  Serial.print("  ");
+  Serial.print(lsensor[O]);
+  Serial.print("  ");
+  Serial.print(lsensor[R]);
+  Serial.println("  ");
+  Serial.print("g/r ratio left: ");
+  Serial.println(lsensor[G] / lsensor[R]);
+  Serial.print("g/r ratio right: ");
+  Serial.println(rsensor[G] / rsensor[R]);
+  Serial.print("Sum right: ");
+  Serial.println(rsum);
+  Serial.print("Sum Left: ");
+  Serial.println(lsum);
+#endif
+
 
 
 
@@ -197,28 +250,28 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
 
   }
 #else
-if(turn_target < 0){
-  forwardCm(9.5, 50);  
-  enc_turn(-70, 100);
-  qtr.read(bw_vals);
-  while(bw_vals[leftSensor] < WHITE_THRESH){
-    lturn(80);
+  if (turn_target < 0) {
+    forwardCm(7.0, 50);
+    enc_turn(-50, 100);
     qtr.read(bw_vals);
+    while (bw_vals[leftSensor] < WHITE_THRESH) {
+      lturn(80);
+      qtr.read(bw_vals);
+    }
+    enc_turn(-10, 90);
+    backwardCm(2.5, 50);
   }
-  enc_turn(-10, 90);
-  backwardCm(2.5, 50);
-}
-if(turn_target > 0){
-  forwardCm(9.5, 50);  
-  enc_turn(70, 100);
-  qtr.read(bw_vals);
-  while(bw_vals[rightSensor] < WHITE_THRESH){
-    rturn(80);
+  if (turn_target > 0) {
+    forwardCm(7.0, 50);
+    enc_turn(50, 100);
     qtr.read(bw_vals);
+    while (bw_vals[rightSensor] < WHITE_THRESH) {
+      rturn(80);
+      qtr.read(bw_vals);
+    }
+    enc_turn(10, 90);
+    backwardCm(2.5, 50);
   }
-  enc_turn(10, 90);  
-  backwardCm(2.5, 50);
-}
 #endif
 }
 
@@ -234,7 +287,7 @@ void nudge() //nudges robot forward to determine accidental green
 
 int get_color()//checks for green based on color vals
 {
-  float br_ratio = 4.0;
+  float br_ratio = 3.0;
   get_vals();
 
   bool rcolor = 0; //set to 1 if rsensor is determined to be seeing green
@@ -243,30 +296,25 @@ int get_color()//checks for green based on color vals
 
 
   qtr.read(bw_vals);
-  if (rsensor[G] / rsensor[R] >= green_checkR && rsensor[B]/rsensor[R] >= br_ratio && !falseGreen()) //is right sensor seeing green?
+  if (rsensor[G] / rsensor[R] >= green_checkR && rsensor[B] / rsensor[R] >= br_ratio) //is right sensor seeing green?
   {
     rcolor = 1;
   }
 
-  if (lsensor[G] / lsensor[R] >= green_checkL && lsensor[B]/lsensor[R] >= br_ratio && !falseGreen()) //is left sensor seeing green?
+  if (lsensor[G] / lsensor[R] >= green_checkL && lsensor[B] / lsensor[R] >= br_ratio) //is left sensor seeing green?
   {
     lcolor = 1;
   }
-  #ifdef debug_greensq
-    if(falseGreen()){
-      Serial.println("FALSE GREEN");
-    }
-#endif
   if (seeSilver) //checks for silver
   {
     return (4);
   }
-  #ifdef debug_greensq
-    Serial.print("\n");
-    Serial.print("get_color: ");
-    Serial.println((rcolor << 1) + lcolor);
-   #endif
-    
+#ifdef debug_greensq
+  Serial.print("\n");
+  Serial.print("get_color: ");
+  Serial.println((rcolor << 1) + lcolor);
+#endif
+
   return ((rcolor << 1) + lcolor); //creates binary number: 11=double green, 10=right green, 01=left green, 00=no green
 
 }
@@ -287,7 +335,7 @@ void greensq()//checks for green and moves accordingly
       set_LED(red);
       Serial.println("check doubleGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
-      silver_count = 0;
+      //silver_count = 0;
       qtr.read(bw_vals);
       if (!falseGreen() && greenCounter())
       {
@@ -303,7 +351,7 @@ void greensq()//checks for green and moves accordingly
     case rightGreen:
       Serial.println("check rightGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
-      silver_count = 0;
+      //silver_count = 0;
       qtr.read(bw_vals);
 
       if (!falseGreen() && greenCounter())
@@ -371,7 +419,9 @@ void greensq()//checks for green and moves accordingly
       green_count = 0;
       //  Serial.println("zero");
       silver_count = 0;
+      blackIntersections();
       break;
+      return;
   }
 
 }

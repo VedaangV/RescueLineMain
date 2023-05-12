@@ -4,11 +4,13 @@
 //libraries, global vars, and essential functions in here:
 //#define main_bot 1
 #define back_up_bot 1
-#define debug_greensq
+//#define debug_greensq
 //#define debug_lineTrace
 //#define debug_obstacle
-//#define debug_tCase
+#define debug_blackInt
 //#define debug_none
+//#define SR
+#define vedaanghouse
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
@@ -17,25 +19,37 @@
 extern QTRSensors qtr;
 #ifdef main_bot 1
 
+#ifdef vedaanghouse
 #define BLACK_THRESH 1700//greater than means it's black
 #define WHITE_THRESH 700 //less than means it's white
+#endif
+
+#ifdef SR
+#define BLACK_THRESH 1700//greater than means it's black
+#define WHITE_THRESH 700 //less than means it's white
+#endif
+
 #define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
 #define rightBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 #else
 
+#ifdef vedaanghouse
 #define BLACK_THRESH 1802 //vedaanghouse-5/7
 #define WHITE_THRESH 958 //vedaanghouse-5/7
-//#define BLACK_THRESH 1180 //storming-5/6
-//#define WHITE_THRESH 644  //storming-5/6
+#endif
+
+#ifdef SR
+#define BLACK_THRESH 1242 //storming-5/11
+#define WHITE_THRESH 654  //storming-5/6
+#endif
+
 #define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
 #define leftBlack() ((bw_vals[0] > BLACK_THRESH) + (bw_vals[1] > BLACK_THRESH) + (bw_vals[2] > BLACK_THRESH) + (bw_vals[3] > BLACK_THRESH))
 
 #endif
-
 extern float wheelBase;
 extern float wheelDia;
 extern float botLength;
-enum debug {lineTracing, greensquare, obs, t_case, none};
 extern int x;
 extern int redPin;
 extern int greenPin;
@@ -56,7 +70,7 @@ extern int count;
 extern const char* serialReq;
 enum sides {right, left};
 extern const float green_check;
-extern const int doubleGreen; extern const int rightGreen; extern const int leftGreen; extern const int silver;
+extern const int doubleGreen; extern const int rightGreen; extern const int leftGreen; extern const int silver; extern const int no_green;
 enum colors {V = 0, B = 1, G = 2, Y = 3, O = 4, R = 5};
 extern int green_count; extern int silver_count;
 extern int rsum;
@@ -109,7 +123,7 @@ void diff_print();
 float qtr_average(int start, int finish);
 int check_left();
 int check_right();
-void tCase();
+void blackIntersections();
 void gap(float motorSpeed);
 
 //obstacle-------------------------------
