@@ -97,49 +97,7 @@ void enc_turn_abs(int deg, int speed)//turns a certain amount of degrees, roundi
 
   motorsStop();
 }
-bool enc_turn(int deg, int speed, int tCase)//turns a specific amount of degrees
-{
-  bool seeBlack = 0;
-  int target = 0;
-  motorsStop();
-  yaw = getYaw();
-  target = yaw + deg;
 
-  if (target < 0)
-  {
-    target += 360;
-  }
-
-  else if (target > 360)
-  {
-    target -= 360;
-  }
-  Serial.print("Degree: ");
-  Serial.println(deg);
-
-  Serial.print("target: ");
-  Serial.println(target);
-  int calc_speed = ((deg * -1) * speed) / abs(deg);
-  int calc_speed_right = ((deg * -1) * speed) / abs(deg) + 10;
-  Serial.print("\n\n\n\n\n\n\n\n\n\n\nRIGHT MOTOR: ");
-  Serial.println(calc_speed);
-  Serial.print("LEFT MOTOR: ");
-  Serial.println(-calc_speed);
-
-  while ((yaw > target + 2) || (yaw < target - 2))
-  {
-    //Serial.println(yaw);
-    setMultipleMotors(-calc_speed, calc_speed_right);
-    qtr.read(bw_vals);
-    if (bw_vals[tCase] > BLACK_THRESH) {
-      seeBlack = true;
-    }
-    yaw = getYaw();
-  }
-
-  motorsStop();
-  return seeBlack;
-}
 
 void bnoSetup()
 {

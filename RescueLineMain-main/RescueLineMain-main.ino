@@ -27,6 +27,8 @@ void loop() {
   obstacle();
   lineTrace();
   x++;
+  //get_vals();
+  
   
   
   

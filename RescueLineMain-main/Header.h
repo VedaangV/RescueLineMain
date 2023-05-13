@@ -2,15 +2,15 @@
 #define HEADER_H
 #pragma once
 //libraries, global vars, and essential functions in here:
-//#define main_bot 1
-#define back_up_bot 1
-//#define debug_greensq
+#define main_bot 1
+//#define back_up_bot 1
+#define debug_greensq
 //#define debug_lineTrace
 //#define debug_obstacle
-#define debug_blackInt
+//#define debug_blackInt
 //#define debug_none
-//#define SR
-#define vedaanghouse
+#define SR
+//#define vedaanghouse
 #include <Adafruit_BNO055.h>
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
@@ -25,8 +25,8 @@ extern QTRSensors qtr;
 #endif
 
 #ifdef SR
-#define BLACK_THRESH 1700//greater than means it's black
-#define WHITE_THRESH 700 //less than means it's white
+#define BLACK_THRESH 1867//greater than means it's black
+#define WHITE_THRESH 1145//less than means it's white
 #endif
 
 #define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
@@ -40,7 +40,7 @@ extern QTRSensors qtr;
 
 #ifdef SR
 #define BLACK_THRESH 1242 //storming-5/11
-#define WHITE_THRESH 654  //storming-5/6
+#define WHITE_THRESH 654  //storming-5/11
 #endif
 
 #define rightBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
@@ -103,7 +103,6 @@ float getYaw();
 float getPitch();
 void bnoSetup();
 void enc_turn_abs(int deg, int speed);
-bool enc_turn(int deg, int speed, int tCase);
 
 //intersections------------------------------
 int get_color();
@@ -120,11 +119,8 @@ void qtr_print();
 void pid_print();
 void lineTrace();
 void diff_print();
-float qtr_average(int start, int finish);
-int check_left();
-int check_right();
 void blackIntersections();
-void gap(float motorSpeed);
+
 
 //obstacle-------------------------------
 bool seeObs(long dist);
