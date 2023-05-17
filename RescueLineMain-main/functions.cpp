@@ -44,12 +44,16 @@ void forwardCm(float dist, int motor_speed) {//go forward for cm
 
 
 void setMultipleMotors(int left, int right) { //set motors
+  int boost = 0;//in case motors are slow
   //port 1
   left = left > 255 ? 255 : left;
   left = left < -255 ? -255 : left;
-
+  
   if (left > 0)
   {
+    #ifdef main_bot
+    left += boost;
+    #endif
     digitalWrite(35, LOW);
     delayMicroseconds(5);
     digitalWrite(34, HIGH);
@@ -57,6 +61,9 @@ void setMultipleMotors(int left, int right) { //set motors
   }
   else if (left < 0)
   {
+    #ifdef main_bot
+    left -= boost;
+    #endif
     digitalWrite(34, LOW);
     delayMicroseconds(5);
     digitalWrite(35, HIGH);
@@ -74,6 +81,9 @@ void setMultipleMotors(int left, int right) { //set motors
   right = -right;
   if (right > 0)
   {
+    #ifdef main_bot
+    right += boost;
+    #endif
     digitalWrite(36, LOW);
     delayMicroseconds(5);
     digitalWrite(37, HIGH);
@@ -81,6 +91,9 @@ void setMultipleMotors(int left, int right) { //set motors
   }
   else if (right < 0)
   {
+    #ifdef main_bot
+    right -= boost;
+    #endif
     digitalWrite(37, LOW);
     delayMicroseconds(5);
     digitalWrite(36, HIGH);

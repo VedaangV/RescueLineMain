@@ -20,13 +20,13 @@ extern QTRSensors qtr;
 #ifdef main_bot 1
 
 #ifdef vedaanghouse
-#define BLACK_THRESH 1700//greater than means it's black
-#define WHITE_THRESH 700 //less than means it's white
+#define BLACK_THRESH 1439//greater than means it's black
+#define WHITE_THRESH 861 //less than means it's white
 #endif
 
 #ifdef SR
-#define BLACK_THRESH 1867//greater than means it's black
-#define WHITE_THRESH 1145//less than means it's white
+#define BLACK_THRESH 1970//greater than means it's black
+#define WHITE_THRESH 1006//less than means it's white
 #endif
 
 #define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))

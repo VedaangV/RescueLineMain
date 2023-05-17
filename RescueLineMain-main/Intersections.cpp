@@ -4,7 +4,7 @@ float rsensor[6];
 float lsensor[6];
 
 #ifdef main_bot
-#define greenCounter() (green_count > 1) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
+#define greenCounter() (green_count > 2) //check if sensor sees green at least __ times in a row before accepting as a "true green" rather than accidental green
 #define seeGradient(s)  (s >= 25 && s <= 65)
 
 #else
@@ -16,8 +16,8 @@ float lsensor[6];
 #define silverCounter (silver_count > 5) //check is sensor sees silver at least ___ times in a row before accepting as "true silver" rather than accidental silver
 //#define falseGreen()  ((leftBlack() >= 2) || (rightBlack() >= 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
 
-const float green_checkL = 14.0;//16.0;
-const float green_checkR = 7.0;//15.0;
+const float green_checkL = 10.0;//16.0;
+const float green_checkR = 8.0;//15.0;
 
 const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int no_green = 0; const int silver = 4;
 int green_count = 0; int silver_count = 0;
@@ -32,9 +32,9 @@ void init_color(sides sensor) {
   switch (sensor) {
     case right:
       Serial2.begin(115200);
-      Serial2.println("ATINTTIME=2");
+      Serial2.println("ATINTTIME=1");
       get_ok(right);
-      Serial2.println("ATGAIN=1");
+      Serial2.println("ATGAIN=3");
       get_ok(right);
       //Serial2.println("ATTCSMD=1");
       // get_ok(right);
@@ -47,9 +47,9 @@ void init_color(sides sensor) {
 
     case left:
       Serial3.begin(115200);
-      Serial3.println("ATINTTIME=2");
+      Serial3.println("ATINTTIME=1");
       get_ok(left);
-      Serial3.println("ATGAIN=1");
+      Serial3.println("ATGAIN=3");
       get_ok(left);
       //Serial3.println("ATTCSMD=1");
       // get_ok(left);
@@ -63,13 +63,14 @@ void init_color(sides sensor) {
 }
  bool falseGreen(float cm){
   int previousEnc = enc;
-  while(previousEnc - enc < cm_to_encoders(cm)){
+  while(enc >= previousEnc -  cm_to_encoders(cm)){
     qtr.read(bw_vals);
     if(bw_vals[leftSensor] > BLACK_THRESH || bw_vals[rightSensor] > BLACK_THRESH){
       return true;
     }
     go_motors(-70);   
   }
+  motorsStop();
   return false;
 }
 void get_ok(sides sensor) //searches on serial 2
@@ -96,6 +97,7 @@ void get_ok(sides sensor) //searches on serial 2
 
 void blackIntersections()//case for intersections without green square.
 {
+  set_LED(red);
   // motorsStop();
   //delay(100);
   qtr.read(bw_vals);
@@ -103,6 +105,7 @@ void blackIntersections()//case for intersections without green square.
 
   int turn = ((leftBlack() >= 4) * -1) + ((rightBlack() >= 4) * 1);
   if (turn == 0) {//if no intersection or cross intersection (cross handled by line tracing)
+    set_LED(off);
     return;
   }
 
@@ -113,9 +116,9 @@ void blackIntersections()//case for intersections without green square.
 #endif
 
   //determines if it is a t-intersection (|--) or 90
-  forwardCm(5.0, 60);//move past the intersection case
+  forwardCm(3.5, 80);//move past the intersection case
   motorsStop();
-  enc_turn(-10, 80);
+  enc_turn(-10, 100);
   qtr.read(bw_vals);
 
   // -------------------------------------
@@ -132,7 +135,7 @@ void blackIntersections()//case for intersections without green square.
         break;
       }
       Serial.println(turn);
-      rturn(turn * 90);
+      rturn(turn * 130);
       qtr.read(bw_vals);
     }
 
@@ -140,11 +143,12 @@ void blackIntersections()//case for intersections without green square.
       go_motors(-70);//back up until you see black line again
       qtr.read(bw_vals);
     }
-    backwardCm(2.0, 70);
+    backwardCm(1.0, 70);
   }
 
   //--------------------------------------------
   motorsStop();
+  set_LED(off);
 }
 
 
@@ -234,6 +238,10 @@ void get_vals()
   Serial.println(lsensor[G] / lsensor[R]);
   Serial.print("g/r ratio right: ");
   Serial.println(rsensor[G] / rsensor[R]);
+  Serial.print("b/r ratio left: ");
+  Serial.println(lsensor[B]/lsensor[R]);
+  Serial.print("b/r ratio right: ");
+  Serial.println(rsensor[B]/rsensor[R]);
   Serial.print("Sum right: ");
   Serial.println(rsum);
   Serial.print("Sum Left: ");
@@ -248,26 +256,30 @@ void get_vals()
 void greensqturn(int turn_target) //code for turning after detecting greensq
 {
   if (turn_target < 0) {
-    forwardCm(7.0, 50);
-    enc_turn(-40, 100);
-    qtr.read(bw_vals);
-    while (bw_vals[leftSensor] < WHITE_THRESH) {
-      lturn(70);
+    forwardCm(7.0, 80);
+   qtr.read(bw_vals);
+   float prevYaw = getYaw();   
+    while (bw_vals[leftSensor] < WHITE_THRESH && getYaw() - prevYaw > -90) {
+      lturn(130);
       qtr.read(bw_vals);
     }
-    enc_turn(-10, 90);
-    backwardCm(2.5, 50);
+    enc_turn_abs(-20, 130);
+    backwardCm(1.0, 80);
+    motorsStop();
+    delay(200);
   }
   if (turn_target > 0) {
-    forwardCm(7.0, 50);
-    enc_turn(40, 100);
+    forwardCm(7.0, 80);
     qtr.read(bw_vals);
-    while (bw_vals[rightSensor] < WHITE_THRESH) {
-      rturn(70);
+    float prevYaw = getYaw();   
+     while (bw_vals[rightSensor] < WHITE_THRESH && getYaw() - prevYaw < 90) {
+      rturn(130);
       qtr.read(bw_vals);
     }
-    enc_turn(10, 90);
-    backwardCm(2.5, 50);
+    enc_turn_abs(20, 130);
+    backwardCm(2.0, 80);
+    motorsStop();
+    delay(200);
   }
 }
 
@@ -284,9 +296,11 @@ void nudge() //nudges robot forward to determine accidental green
 int get_color()//checks for green based on color vals
 {
 #ifdef main_bot
-  float br_ratio = 2.0;
+  float br_ratioL = 3.5;
+  float br_ratioR = 3.5;
 #else
-  float br_ratio = 3.0 ;
+  float br_ratioL = 3.0 ;
+  float br_ratioR = 3.0;
 #endif
   get_vals();
 
@@ -296,12 +310,12 @@ int get_color()//checks for green based on color vals
 
 
   qtr.read(bw_vals);
-  if (rsensor[G] / rsensor[R] >= green_checkR && rsensor[B] / rsensor[R] >= br_ratio) //is right sensor seeing green?
+  if (rsensor[G] / rsensor[R] >= green_checkR && rsensor[B] / rsensor[R] >= br_ratioR) //is right sensor seeing green?
   {
     rcolor = 1;
   }
 
-  if (lsensor[G] / lsensor[R] >= green_checkL && lsensor[B] / lsensor[R] >= br_ratio) //is left sensor seeing green?
+  if (lsensor[G] / lsensor[R] >= green_checkL && lsensor[B] / lsensor[R] >= br_ratioL) //is left sensor seeing green?
   {
     lcolor = 1;
   }
@@ -324,31 +338,28 @@ int get_color()//checks for green based on color vals
 void greensq()//checks for green and moves accordingly
 {
   //setting indicator LED to green color
-#ifdef main_bot
-  set_LED(green);
-#endif
 
 
   switch (get_color())
   {
     case doubleGreen:
-      set_LED(red);
+      set_LED(green);
       Serial.println("check doubleGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
       if (greenCounter()) {//sees green enough times in a row
-        qtr.read(bw_vals);
         if (!falseGreen(2))//if no false green
         {
+          forwardCm(2.0, 70);
           Serial2.println(serialReq);
           Serial3.println(serialReq);
           set_LED(off);
           Serial.println("DOUBLE GREEN");
-          enc_turn(180, 70);
+          enc_turn_abs(180, 130);
           green_count = 0;
         }
         else {//there is false green
-          forwardCm(3.0, 70);
+          forwardCm(4.0, 70);
           green_count = 0;
         }
       }
@@ -356,14 +367,14 @@ void greensq()//checks for green and moves accordingly
 
 
     case rightGreen:
+    set_LED(green);
       Serial.println("check rightGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
       if (greenCounter()) {//sees right green enough times
-        backwardCm(1.0, 70);//back up to check false green
-        qtr.read(bw_vals);
         if (!falseGreen(2))//turn if no false green
         {
+          forwardCm(2.0, 70);
           Serial2.println(serialReq);
           Serial3.println(serialReq);
           set_LED(off);
@@ -372,7 +383,7 @@ void greensq()//checks for green and moves accordingly
           green_count = 0;
         }
         else {
-          forwardCm(3.0, 70);
+          forwardCm(4.0, 70);
           green_count = 0;
         }
       }
@@ -380,14 +391,14 @@ void greensq()//checks for green and moves accordingly
 
 
     case leftGreen:
+    set_LED(green);
       Serial.println("check leftGreen"); //at this point, the robot has seen at least 1 green value in a row, and is checking for more
       green_count++;
       silver_count = 0;
       if (greenCounter()) {//sees left green enought times
-        backwardCm(1.0, 70);//back up for false green check
-        qtr.read(bw_vals);
         if (!falseGreen(2))//if no false green, the n turn
         {
+          forwardCm(2.0, 70);
           Serial2.println(serialReq);
           Serial3.println(serialReq);
           set_LED(off);
@@ -396,7 +407,7 @@ void greensq()//checks for green and moves accordingly
           green_count = 0;
         }
         else {
-          forwardCm(3.0, 70);
+          forwardCm(4.0, 70);
           green_count = 0;
         }
       }
@@ -417,7 +428,9 @@ void greensq()//checks for green and moves accordingly
       green_count = 0;
       //  Serial.println("zero");
       silver_count = 0;
+      if( x % 2 == 0){
       blackIntersections();
+      }
       break;
       return;
   }

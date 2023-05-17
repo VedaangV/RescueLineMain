@@ -9,9 +9,9 @@ float integral = 0.0; float derivative = 0.0; float last_error = 0.0;
 int count = 0;
 
 #ifdef main_bot
-const float kp = 0.035;
-const float ki = 0.0000002;
-const float kd = 0.0001;
+const float kp = 0.04;
+const float ki = 0.0000000;
+const float kd = 0.0000;
 
 //sensor order for qtr is different on each bot.
 //MAIN BOT: sensor order acsends right to left (0 is right most, 7 is left most)
@@ -66,8 +66,11 @@ float error_calc() {
   //desired difference between sensor pairs (ideally 0, but sensors are not perfect):
 #ifdef main_bot
   #ifdef SR
-  float target_vals[] = {48, -48, 344, 296}; //4/16-storming. 8/*FINAL ROBOT*/
+  float target_vals[] = {48, 0, 0, -48}; //5/17-storming. 8/*FINAL ROBOT*/
   #endif
+  #ifdef vedaanghouse
+  float target_vals[] = {96, 0, -48, 0}; //5/16-vedaanghouse. 8/*FINAL ROBOT*/
+  #endif 
   float multipliers[] = {1.9, 1.6, 1.2, 1.0};
 #else
   #ifdef SR
@@ -123,8 +126,16 @@ void diff_print() {//print the diff between sensor pairs.
 /*This handles all black intersection cases*/
 
 void lineTrace() {//main line tracking function
-  float maxSpeed = 125.0;
+  #ifdef main_bot
+  float maxSpeed = 100.0;
+  #else
+  float maxSpeed = 105.0; //125.0;
+  #endif
+  #ifdef back_up_bot
   int base_speed = 60  + getPitch();//base speed for Line Tracing
+  #else
+  int base_speed = 65 + getPitch();
+  #endif
   // gap();
   float error = error_calc();//calculating error
   integral += error;//summing up all erors during runtime

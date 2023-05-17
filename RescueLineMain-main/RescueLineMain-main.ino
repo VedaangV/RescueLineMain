@@ -24,11 +24,16 @@ void loop() {
   Serial2.println(serialReq);
   Serial3.println(serialReq);
   greensq();
-  obstacle();
+  if( x % 3 == 0){
+     obstacle();
+
+  }
   lineTrace();
   x++;
-  //get_vals();
   
+  
+  
+ 
   
   
   
