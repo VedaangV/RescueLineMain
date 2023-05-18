@@ -4,7 +4,7 @@
 //libraries, global vars, and essential functions in here:
 #define main_bot 1
 //#define back_up_bot 1
-#define debug_greensq
+//#define debug_greensq
 //#define debug_lineTrace
 //#define debug_obstacle
 //#define debug_blackInt
@@ -25,8 +25,8 @@ extern QTRSensors qtr;
 #endif
 
 #ifdef SR
-#define BLACK_THRESH 1970//greater than means it's black
-#define WHITE_THRESH 1006//less than means it's white
+#define BLACK_THRESH 1942//greater than means it's black
+#define WHITE_THRESH 1002//less than means it's white
 #endif
 
 #define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))

@@ -75,7 +75,7 @@ bool seeObs(long dist) { //sees obstacle?
 }*/
 void avoid(int sign){
   float proportion = 17.0;
-  float baseSpeed = 10.0;
+  float baseSpeed = 8.0;
   float obs_width = 10.0;//assumed width of obstacle for testing
   float bot_dist = 5.0;//the distance between the bot and obstacle before turning (measured)
   float circum = ((obs_width + (2 * bot_dist)) * PI)/2;//calculation of the circumference of the circular path bot must take
@@ -93,9 +93,9 @@ void avoid(int sign){
     qtr.read(bw_vals);
     rturn(70 * sign);
   }
-  forwardCm(1.0, 80);
+  forwardCm(0.7, 80);
   enc_turn(7.5 * sign, 120);
-  forwardCm(1.0, 80);
+  forwardCm(0.7, 80);
   enc_turn(7.5 * sign, 120);
    
 }

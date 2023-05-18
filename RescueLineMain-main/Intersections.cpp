@@ -17,7 +17,7 @@ float lsensor[6];
 //#define falseGreen()  ((leftBlack() >= 2) || (rightBlack() >= 2)) //check if QTR array is seeing half black on either right or left sensors to avoid false green
 
 const float green_checkL = 10.0;//16.0;
-const float green_checkR = 8.0;//15.0;
+const float green_checkR = 7.0;//15.0;
 
 const int doubleGreen = 3; const int rightGreen = 2; const int leftGreen = 1; const int no_green = 0; const int silver = 4;
 int green_count = 0; int silver_count = 0;
@@ -97,7 +97,7 @@ void get_ok(sides sensor) //searches on serial 2
 
 void blackIntersections()//case for intersections without green square.
 {
-  set_LED(red);
+ // set_LED(red);
   // motorsStop();
   //delay(100);
   qtr.read(bw_vals);
@@ -264,7 +264,7 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
       qtr.read(bw_vals);
     }
     enc_turn_abs(-20, 130);
-    backwardCm(1.0, 80);
+    backwardCm(0.5, 80);
     motorsStop();
     delay(200);
   }
@@ -277,7 +277,7 @@ void greensqturn(int turn_target) //code for turning after detecting greensq
       qtr.read(bw_vals);
     }
     enc_turn_abs(20, 130);
-    backwardCm(2.0, 80);
+    backwardCm(0.5, 80);
     motorsStop();
     delay(200);
   }
@@ -296,8 +296,8 @@ void nudge() //nudges robot forward to determine accidental green
 int get_color()//checks for green based on color vals
 {
 #ifdef main_bot
-  float br_ratioL = 3.5;
-  float br_ratioR = 3.5;
+  float br_ratioL = 3.0;
+  float br_ratioR = 2.5;
 #else
   float br_ratioL = 3.0 ;
   float br_ratioR = 3.0;
