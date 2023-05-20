@@ -29,7 +29,9 @@ void loop() {
 
   }
   lineTrace();
+  //qtr_print();
   x++;
+  
   
   
   

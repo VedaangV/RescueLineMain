@@ -66,7 +66,7 @@ float error_calc() {
   //desired difference between sensor pairs (ideally 0, but sensors are not perfect):
 #ifdef main_bot
   #ifdef SR
-  float target_vals[] = {0, 0, 284, 260}; //5/18-storming. 8/*FINAL ROBOT*/
+  float target_vals[] = {48, 0, 0, 104}; //5/20-storming. 8/*FINAL ROBOT*/
   #endif
   #ifdef vedaanghouse
   float target_vals[] = {96, 0, -48, 0}; //5/16-vedaanghouse. 8/*FINAL ROBOT*/

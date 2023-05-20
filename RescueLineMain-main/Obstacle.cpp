@@ -5,9 +5,10 @@ volatile long pulseMsEd = 0;
 volatile bool pulseFirst = 1;
 int trig = 4;
 int echo = 5;
-float wheelBase = 15;
-float wheelDia = 4.8;
-float botLength = 25;
+float wheelBase = 17;
+float wheelDia = 5.5;
+float botLength = 20;
+float startingYaw;
 void distanceISR()
 {
 
@@ -46,7 +47,6 @@ float getFrontDistance()//get distance of Front US
 }
 
 bool seeObs(long dist) { //sees obstacle?
-  Serial.println(getFrontDistance());
   if (getFrontDistance() <= dist) {
     return true;
   }
@@ -74,25 +74,36 @@ bool seeObs(long dist) { //sees obstacle?
   enc_turn(90 * sign, 100);
 }*/
 void avoid(int sign){
-  float proportion = 17.0;
+  float proportion = 20.0;
   float baseSpeed = 8.0;
   float obs_width = 10.0;//assumed width of obstacle for testing
   float bot_dist = 5.0;//the distance between the bot and obstacle before turning (measured)
-  float circum = ((obs_width + (2 * bot_dist)) * PI)/2;//calculation of the circumference of the circular path bot must take
+  float circum = (((obs_width + (2 * bot_dist)) * PI)/2) - botLength/2;//calculation of the circumference of the circular path bot must take
   float previous_enc = enc;
+  int inner_sensor;
   while(enc- previous_enc < 0.2 * (cm_to_encoders(circum))){//until completed at least 20% of the turn
     setMultipleMotors(baseSpeed + (baseSpeed * (proportion-1) * (sign < 0)), ((baseSpeed*proportion) -  (baseSpeed * (proportion-1) * (sign < 0))));//circular turn, speeds: (base_speed * proportion), base_speed
   }
   qtr.read(bw_vals);
-  while(leftBlack() == 0 && rightBlack() == 0){//keep turning until black line
+  if(sign == 1){
+    inner_sensor = leftSensor;
+  }
+  else{
+    inner_sensor = rightSensor;
+  }
+  while(bw_vals[inner_sensor] < BLACK_THRESH && enc- previous_enc < (cm_to_encoders(circum))){//keep turning until black line
     qtr.read(bw_vals);
   }
   forwardCm(5.0, 80);
+  
   qtr.read(bw_vals);
-  while(leftBlack() == 0 && rightBlack() == 0){//turn back onto line
+  while((leftBlack() == 0 && rightBlack() == 0)){//turn back onto line
     qtr.read(bw_vals);
-    rturn(70 * sign);
+    rturn(100 * sign);
   }
+
+ //turning back straight gradually
+ 
   forwardCm(0.7, 80);
   enc_turn(7.5 * sign, 120);
   forwardCm(0.7, 80);
@@ -104,6 +115,7 @@ void obstacle() { //main obstacle function
     #ifdef debug_obstacle
       Serial.println("Saw obstacle");
     #endif
+    startingYaw = getYaw();
     enc_turn(90, 100);
     if (seeObs(10.0)) { //sees wall
       #ifdef debug_obstacle

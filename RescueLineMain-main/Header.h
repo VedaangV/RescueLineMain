@@ -25,8 +25,8 @@ extern QTRSensors qtr;
 #endif
 
 #ifdef SR
-#define BLACK_THRESH 1942//greater than means it's black
-#define WHITE_THRESH 1002//less than means it's white
+#define BLACK_THRESH 1936//greater than means it's black
+#define WHITE_THRESH 1000//less than means it's white
 #endif
 
 #define leftBlack() ((bw_vals[7] > BLACK_THRESH) + (bw_vals[6] > BLACK_THRESH) + (bw_vals[5] > BLACK_THRESH) + (bw_vals[4] > BLACK_THRESH))
