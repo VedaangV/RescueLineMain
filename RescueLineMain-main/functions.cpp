@@ -4,6 +4,22 @@ int redPin = A11;
 int greenPin = A10;
 int bluePin = A9;
 volatile int enc = 0;
+void motorSetup()
+{
+  TCCR1A = _BV(WGM10);
+    TCCR1B = _BV(CS11) | _BV(CS10) | _BV(WGM12);//970hz
+  TCCR4A = _BV(WGM40);
+    TCCR4B = _BV(CS41) | _BV(CS40) | _BV(WGM42);//970hz
+  TCCR2A = _BV(WGM21) | _BV(WGM20);//970hz
+    TCCR2B = _BV(CS22);
+    
+  pinMode(34, OUTPUT);
+  pinMode(35, OUTPUT);
+  pinMode(36, OUTPUT);
+  pinMode(37, OUTPUT);
+  pinMode(42, OUTPUT);
+  pinMode(43, OUTPUT);
+}
 
 float cm_to_encoders(float cm) {
   const float wheelDiameter = 6.42;
@@ -106,6 +122,33 @@ void setMultipleMotors(int left, int right) { //set motors
     analogWrite(8, 0);
   }
 
+}
+//port 3
+void grabMotorRun(int16_t speed)
+{
+  speed = speed > 255 ? 255 : speed;
+  speed = speed < -255 ? -255 : speed;
+  //speed = -speed;
+  if(speed > 0)
+  {
+    digitalWrite(42, LOW);
+    delayMicroseconds(5);
+    digitalWrite(43, HIGH);
+    analogWrite(9,speed);
+  }
+  else if(speed < 0)
+  {
+    digitalWrite(43, LOW);
+    delayMicroseconds(5);
+    digitalWrite(42, HIGH);
+    analogWrite(9,-speed);
+  }
+  else
+  {
+    digitalWrite(42, LOW);
+    digitalWrite(43, LOW);
+    analogWrite(9,0);
+  }
 }
 void go_motors(int motorSpeed) { //goes forward
   setMultipleMotors(motorSpeed, motorSpeed);

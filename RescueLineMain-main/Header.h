@@ -15,6 +15,11 @@
 #include <QTRSensors.h>//for qtr
 #include <utility/imumaths.h>
 #include <Adafruit_Sensor.h>
+#include <Servo.h>
+#include <Wire.h>
+#include "Adafruit_VL53L0X.h"
+#include <SoftwareSerial.h>
+#define SERVOPIN A15
 #define TCAADDR 0x70
 extern QTRSensors qtr;
 #ifdef main_bot 1
@@ -82,6 +87,8 @@ extern int echo;
 
 //functions.cpp---------------------------
 void setMultipleMotors(int left, int right);
+void grabMotorRun(int16_t speed);
+void motorSetup();
 void go_motors(int motorSpeed);
 void rturn(int motorSpeed);
 void lturn(int motorSpeed);
@@ -131,5 +138,9 @@ long microToInch(long microseconds);
 void avoid(int sign);
 void obstacle();
 float getFrontDistance();
+
+//Evac-----------------------------------
+void evacSetup();
+void dumpKit();
 
 #endif

@@ -134,7 +134,7 @@ void lineTrace() {//main line tracking function
   #ifdef back_up_bot
   int base_speed = 60  + getPitch();//base speed for Line Tracing
   #else
-  int base_speed = 65 - getPitch();
+  int base_speed = 65 - (getPitch() * 1.2);
   #endif
   // gap();
   float error = error_calc();//calculating error

@@ -4,6 +4,7 @@ int x = 0;
 const char* serialReq = "ATDATA";
 void setup() {
   //setup in here
+  motorSetup();
   setup_qtr();
   Wire.begin();
   Serial.begin(115200);
@@ -18,6 +19,8 @@ void setup() {
   //obstacle pins
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
+  // rescue kit stuff
+  evacSetup();
 
 }
 void loop() {
@@ -31,9 +34,6 @@ void loop() {
   lineTrace();
   //qtr_print();
   x++;
-  
-  
-  
   
  
   
