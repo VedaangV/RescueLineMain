@@ -1,0 +1,79 @@
+# Untitled - By: ae900 - Sun May 14 2023
+
+import sensor, image, time, pyb
+from pyb import UART
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.QVGA)
+sensor.set_vflip(True);
+sensor.set_hmirror(True);
+sensor.skip_frames(time = 2000)
+
+clock = time.clock()
+#greenTh = (0, 36, -47, 28, -15, 51)
+greenTh = (1, 44, -128, -14, -15, 47)
+rled = pyb.LED(1)
+gled = pyb.LED(2)
+bled = pyb.LED(3)
+
+rled.on()
+gled.on()
+bled.on()
+BLX = 0
+BLY= 0
+BLW = 0
+BLH = 0
+targetx = 0
+targety = 0
+
+uart = UART(3, 9600,timeout_char=10000)
+print("Start")
+
+while(not uart.any()):
+    #fjaldjlaksd
+    time.sleep_ms(1)
+print("Starting to read")
+st = uart.readchar()
+print(st)
+while st!=83:
+    st = uart.readchar()
+print("Got response")
+uart.write('S')
+time.sleep_ms(2000)
+while(not uart.any()):
+    #fjaldjlaksd
+    time.sleep_ms(1)
+print("Starting to read")
+st = uart.readchar()
+uart.write('S');
+time.sleep_ms(1000);
+uart.write('L');
+
+while(True):
+    clock.tick()
+    img = sensor.snapshot()
+    largestArea = 0;
+    blobs = img.find_blobs([greenTh],area_threashold=0,merge=True)
+    for blob in blobs:
+        if blob.area() > largestArea:
+            largestArea = blob.area()
+            BLX = blob.x()
+            BLY = blob.y()
+            BLW = blob.w()
+            BLH = blob.h()
+            targetx = blob.cx()
+            targety = blob.cy()
+
+    print(largestArea)
+    if(largestArea > 4000 and largestArea < 25000):
+        img.draw_cross(targetx, targety, color=255)
+        img.draw_rectangle(BLX,BLY,BLW,BLH, color=255)
+        if targetx >140 and targetx < 180:
+            uart.write("C")
+            print("C")
+
+    #uart.write("%d\n"%targetx);
+    #print(targetx,end=' ')
+    #print(targety)
+    #print(targetx)
+    #print(clock.fps())
